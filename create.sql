@@ -131,3 +131,78 @@ CREATE TABLE AlternativeTitle (
     PRIMARY KEY (title, book_title, book_author),
     CONSTRAINT fk_book FOREIGN KEY (book_title, book_author) REFERENCES Books(title, main_author),
 );
+
+
+CREATE TABLE Awards (
+    name VARCHAR(200),
+    book_title VARCHAR(200),
+    book_author VARCHAR(100),
+    PRIMARY KEY (name, book_title, book_author),
+    CONSTRAINT fk_book FOREIGN KEY (book_title, book_author) REFERENCES Books(title, main_author),
+);
+
+CREATE TABLE Edition (
+    isbn VARCHAR(20) PRIMARY KEY, 
+    book VARCHAR(200), 
+    edition VARCHAR(200), 
+    publisher VARCHAR(200), 
+    length VARCHAR(200), 
+    series VARCHAR(200), 
+    legal deposit VARCHAR(200), 
+    place_of_publication VARCHAR(200), 
+    dimensions VARCHAR(200), 		
+    physical_features VARCHAR(200), 
+    ancillary VARCHAR(200), 
+    notes VARCHAR(200), 
+    national_library_id NUMBER UNIQUE, 
+    URL VARCHAR(200) UNIQUE,
+    CONSTRAINT fk_book FOREIGN KEY (book_title, book_author) REFERENCES Books(title, main_author)
+);
+
+
+CREATE TABLE AdditionalLanguage (
+    edition VARCHAR(20),
+    language VARCHAR(200),
+    PRIMARY KEY (isbn, language),
+    CONSTRAINT fk_edition FOREIGN KEY (edition) REFERENCES Edition(isbn)
+);
+
+CREATE TABLE Copy (
+    signature VARCHAR(5) PRIMARY KEY, 
+    edition VARCHAR(20) NOT NULL, 
+    condition VARCHAR(200), 
+    comments VARCHAR(200), 
+    deregistration_date VARCHAR(200),
+    CONSTRAINT fk_edition FOREIGN KEY (edition) REFERENCES Edition(isbn)
+);
+
+CREATE TABLE LibraryLoans (
+    library VARCHAR(200),
+    copy VARCHAR(200),
+    start_date VARCHAR(100),
+    return_date VARCHAR(100),
+    PRIMARY KEY (copy, start_date),
+    CONSTRAINT fk_library FOREIGN KEY (library) REFERENCES Library(CIF),
+    CONSTRAINT fk_copy FOREIGN KEY (copy) REFERENCES Copy(signature)
+);
+
+CREATE TABLE UserLoans (
+    user VARCHAR(200),
+    copy VARCHAR(200),
+    start_date VARCHAR(100),
+    return_date VARCHAR(100),
+    PRIMARY KEY (copy, start_date),
+    CONSTRAINT fk_user FOREIGN KEY (user) REFERENCES User(user_id),
+    CONSTRAINT fk_copy FOREIGN KEY (copy) REFERENCES Copy(signature)
+);
+
+CREATE TABLE Comment (
+    loan_copy VARCHAR(200),
+    loan_date DATE,
+    post VARCHAR(200),
+    post_date DATE,
+    likes NUMBER,
+    dislikes NUMBER,
+    PRIMARY KEY (loan_copy, loan_date),
+    CONSTRAINT fk_loan FOREIGN KEY (loan_copy, loan_date) REFERENCES UserLoans(copy, start_date)
+);
