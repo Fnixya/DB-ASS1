@@ -35,7 +35,7 @@ CREATE TABLE Library (
     date_of_foundation DATE,
     municipality_name VARCHAR(64),
     municipality_province VARCHAR(64),
-    CONSTRAINT fk_municipality FOREIGN KEY (municipality_name, municipality_province) REFERENCES Municipality(name, province),
+    CONSTRAINT fk_municipality FOREIGN KEY (municipality_name, municipality_province) REFERENCES Municipality(name, province)
 );
 
 
@@ -46,7 +46,7 @@ CREATE TABLE Bibus(
     license_plate VARCHAR(16) PRIMARY KEY,
     status VARCHAR(16) NOT NULL,     -- available, under_inspection, in_service 
     last_itv DATE NOT NULL,
-    next_itv DATE,
+    next_itv DATE
 );
 
 CREATE TABLE Bibusero(
@@ -58,8 +58,8 @@ CREATE TABLE Bibusero(
     address VARCHAR(100),
     email VARCHAR(50),
     constract_start_date DATE NOT NULL,
-    constract_end_date DATE,    
-    -- birthdate DATE,
+    constract_end_date DATE    
+    -- birthdate DATE
 );
 
 CREATE TABLE Route (
@@ -68,7 +68,7 @@ CREATE TABLE Route (
     bibus VARCHAR(16),
     bibusero VARCHAR(9),    
     CONSTRAINT fk_bibus FOREIGN KEY (bibus) REFERENCES Bibus(license_plate),
-    CONSTRAINT fk_bibusero FOREIGN KEY (passport) REFERENCES Bibusero(passport),
+    CONSTRAINT fk_bibusero FOREIGN KEY (passport) REFERENCES Bibusero(passport)
 );
 
 CREATE TABLE Stops (
@@ -76,7 +76,7 @@ CREATE TABLE Stops (
     municipality_province VARCHAR(64),
     address VARCHAR(64),
     PRIMARY KEY (municipality_name, municipality_province, address),
-    CONSTRAINT fk_municipality FOREIGN KEY (municipality_name, municipality_province) REFERENCES Municipality(name, province),
+    CONSTRAINT fk_municipality FOREIGN KEY (municipality_name, municipality_province) REFERENCES Municipality(name, province)
 );
 
 CREATE TABLE dL_Route_Stops (
@@ -107,14 +107,14 @@ CREATE TABLE Users (
     municipality_province VARCHAR(64),
     address VARCHAR(64),
     email VARCHAR(50),
-    CONSTRAINT fk_municipality FOREIGN KEY (municipality_name, municipality_province) REFERENCES Municipality(name, province),
+    CONSTRAINT fk_municipality FOREIGN KEY (municipality_name, municipality_province) REFERENCES Municipality(name, province)
 );
 
 CREATE TABLE Sanctions (
     user_id VARCHAR(5),
     date DATE,
     duration NUMBER,
-    CONSTRAINT fk_user FOREIGN KEY (user_id) REFERENCES Users(user_id),
+    CONSTRAINT fk_user FOREIGN KEY (user_id) REFERENCES Users(user_id)
 );
 
 CREATE TABLE Books (
@@ -136,7 +136,7 @@ CREATE TABLE Contributors (
     book_title VARCHAR(200),
     book_author VARCHAR(100),
     PRIMARY KEY (author, book_title, book_author),
-    CONSTRAINT fk_book FOREIGN KEY (book_title, book_author) REFERENCES Books(title, main_author),
+    CONSTRAINT fk_book FOREIGN KEY (book_title, book_author) REFERENCES Books(title, main_author)
 );
 
 CREATE TABLE AlternativeTitle (
@@ -144,7 +144,7 @@ CREATE TABLE AlternativeTitle (
     book_title VARCHAR(200),
     book_author VARCHAR(100),
     PRIMARY KEY (title, book_title, book_author),
-    CONSTRAINT fk_book FOREIGN KEY (book_title, book_author) REFERENCES Books(title, main_author),
+    CONSTRAINT fk_book FOREIGN KEY (book_title, book_author) REFERENCES Books(title, main_author)
 );
 
 CREATE TABLE Awards (
@@ -152,7 +152,7 @@ CREATE TABLE Awards (
     book_title VARCHAR(200),
     book_author VARCHAR(100),
     PRIMARY KEY (name, book_title, book_author),
-    CONSTRAINT fk_book FOREIGN KEY (book_title, book_author) REFERENCES Books(title, main_author),
+    CONSTRAINT fk_book FOREIGN KEY (book_title, book_author) REFERENCES Books(title, main_author)
 );
 
 CREATE TABLE Edition (
@@ -209,7 +209,7 @@ CREATE TABLE UserLoans (
     CONSTRAINT fk_copy FOREIGN KEY (copy) REFERENCES Copy(signature)
 );
 
-CREATE TABLE Comment (
+CREATE TABLE Comments (
     loan_copy VARCHAR(200),
     loan_date DATE,
     post VARCHAR(200),
