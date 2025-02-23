@@ -111,7 +111,7 @@ CREATE TABLE Users (
 );
 
 CREATE TABLE Sanctions (
-    user_id VARCHAR(5),
+    user_id NUMBER,
     day DATE,
     duration NUMBER,
     CONSTRAINT fk_user_sanctions FOREIGN KEY (user_id) REFERENCES Users(user_id)
@@ -157,7 +157,8 @@ CREATE TABLE Awards (
 
 CREATE TABLE Edition (
     isbn VARCHAR(20) PRIMARY KEY, 
-    book VARCHAR(200), 
+    book_title VARCHAR(200),
+    book_author VARCHAR(100),
     edition VARCHAR(200), 
     publisher VARCHAR(200), 
     length VARCHAR(200), 
@@ -176,14 +177,14 @@ CREATE TABLE Edition (
 CREATE TABLE AdditionalLanguage (
     edition VARCHAR(20),
     language VARCHAR(200),
-    PRIMARY KEY (isbn, language),
+    PRIMARY KEY (edition, language),
     CONSTRAINT fk_edition_add_language FOREIGN KEY (edition) REFERENCES Edition(isbn)
 );
 
 CREATE TABLE Copy (
     signature VARCHAR(5) PRIMARY KEY, 
     edition VARCHAR(20) NOT NULL, 
-    condition VARCHAR(200), 
+    condition VARCHAR(12), 
     comments VARCHAR(200), 
     deregistration_date VARCHAR(200),
     CONSTRAINT fk_edition_copy FOREIGN KEY (edition) REFERENCES Edition(isbn)
@@ -212,7 +213,7 @@ CREATE TABLE UserLoans (
 CREATE TABLE Comments (
     loan_copy VARCHAR(200),
     loan_date DATE,
-    post VARCHAR(200),
+    post VARCHAR(500),
     post_date DATE,
     likes NUMBER,
     dislikes NUMBER,
