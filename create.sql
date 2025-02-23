@@ -25,7 +25,7 @@ DROP TABLE Municipality;
 CREATE TABLE Municipality (
     name VARCHAR(64),
     province VARCHAR(64),
-    population NUMBER,
+    population NUMBER NOT NULL,
     PRIMARY KEY (name, province)
 );
 
@@ -54,12 +54,12 @@ CREATE TABLE Bibusero(
     name VARCHAR(64) NOT NULL,
     surname1 VARCHAR(64) NOT NULL,
     surname2 VARCHAR(64),
-    phone_number VARCHAR(16),
+    phone_number NUMBER NOT NULL,
     address VARCHAR(100),
     email VARCHAR(50),
     constract_start_date DATE NOT NULL,
-    constract_end_date DATE    
-    -- birthdate DATE
+    constract_end_date DATE,    
+    birthdate DATE NOT NULL
 );
 
 CREATE TABLE Route (
@@ -74,7 +74,7 @@ CREATE TABLE Route (
 CREATE TABLE Stops (
     municipality_name VARCHAR(64),
     municipality_province VARCHAR(64),
-    address VARCHAR(64),
+    address VARCHAR(150),
     PRIMARY KEY (municipality_name, municipality_province, address),
     CONSTRAINT fk_municipality_stops FOREIGN KEY (municipality_name, municipality_province) REFERENCES Municipality(name, province)
 );
@@ -83,7 +83,7 @@ CREATE TABLE dL_Route_Stops (
     route_id VARCHAR(5),
     municipality_name VARCHAR(64),
     municipality_province VARCHAR(64),
-    address VARCHAR(64),
+    address VARCHAR(100),
     seq_order NUMBER,
     stop_time DATE,
     PRIMARY KEY (route_id, municipality_name, municipality_province, address),    
@@ -102,10 +102,10 @@ CREATE TABLE Users (
     surname2 VARCHAR(64),
     passport VARCHAR(9) UNIQUE,
     birthdate DATE,
-    phone_number VARCHAR(16),
+    phone_number NUMBER NOT NULL,
     municipality_name VARCHAR(64),
     municipality_province VARCHAR(64),
-    address VARCHAR(64),
+    address VARCHAR(100),
     email VARCHAR(50),
     CONSTRAINT fk_municipality_users FOREIGN KEY (municipality_name, municipality_province) REFERENCES Municipality(name, province)
 );
