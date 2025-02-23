@@ -201,12 +201,12 @@ CREATE TABLE LibraryLoans (
 );
 
 CREATE TABLE UserLoans (
-    user VARCHAR(200),
+    user_id NUMBER,
     copy VARCHAR(200),
-    start_date VARCHAR(100),
-    return_date VARCHAR(100),
+    start_date DATE,
+    return_date DATE,
     PRIMARY KEY (copy, start_date),
-    CONSTRAINT fk_user FOREIGN KEY (user) REFERENCES User(user_id),
+    CONSTRAINT fk_user_loan FOREIGN KEY (user_id) REFERENCES Users(user_id),
     CONSTRAINT fk_copy_usr_loan FOREIGN KEY (copy) REFERENCES Copy(signature)
 );
 
