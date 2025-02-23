@@ -35,6 +35,9 @@ CREATE TABLE Library (
     date_of_foundation DATE,
     municipality_name VARCHAR(64),
     municipality_province VARCHAR(64),
+    address VARCHAR(100),
+    email VARCHAR(100),
+    phone_number NUMBER,
     CONSTRAINT fk_municipality_library FOREIGN KEY (municipality_name, municipality_province) REFERENCES Municipality(name, province)
 );
 
@@ -54,9 +57,10 @@ CREATE TABLE Bibusero(
     name VARCHAR(64) NOT NULL,
     surname1 VARCHAR(64) NOT NULL,
     surname2 VARCHAR(64),
-    phone_number VARCHAR(16),
+    phone_number NUMBER,
     address VARCHAR(100),
     email VARCHAR(50),
+    status VARCHAR(16) NOT NULL,     -- available, under_inspection?, in_service 
     constract_start_date DATE NOT NULL,
     constract_end_date DATE    
     -- birthdate DATE
@@ -114,6 +118,7 @@ CREATE TABLE Sanctions (
     user_id NUMBER,
     day DATE,
     duration NUMBER,
+    PRIMARY KEY (user_id, day)
     CONSTRAINT fk_user_sanctions FOREIGN KEY (user_id) REFERENCES Users(user_id)
 );
 
