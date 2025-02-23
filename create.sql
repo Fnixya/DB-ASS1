@@ -23,8 +23,8 @@ DROP TABLE Municipality;
 
 
 CREATE TABLE Municipality (
-    name VARCHAR(64),
-    province VARCHAR(64),
+    name VARCHAR(50),
+    province VARCHAR(22),
     population NUMBER NOT NULL,
     PRIMARY KEY (name, province)
 );
@@ -33,8 +33,8 @@ CREATE TABLE Library (
     cif VARCHAR(64) PRIMARY KEY,
     name VARCHAR(64),
     date_of_foundation DATE,
-    municipality_name VARCHAR(64),
-    municipality_province VARCHAR(64),
+    municipality_name VARCHAR(50),
+    municipality_province VARCHAR(22),
     address VARCHAR(100),
     email VARCHAR(100),
     phone_number NUMBER,
@@ -47,20 +47,20 @@ CREATE TABLE Library (
 
 CREATE TABLE Bibus(
     license_plate VARCHAR(16) PRIMARY KEY,
-    status VARCHAR(16) NOT NULL,     -- available, under_inspection, in_service 
-    last_itv DATE NOT NULL,
-    next_itv DATE
+    status VARCHAR(16) DEFAULT 'AVAILABLE',     -- ?????
+    last_itv DATETIME NOT NULL,
+    next_itv DATE NOT NULL
 );
 
 CREATE TABLE Bibusero(
-    passport VARCHAR(9) PRIMARY KEY,
+    passport VARCHAR(10) PRIMARY KEY,
     name VARCHAR(64) NOT NULL,
     surname1 VARCHAR(64) NOT NULL,
     surname2 VARCHAR(64),
     phone_number NUMBER NOT NULL,
     address VARCHAR(100),
-    email VARCHAR(50),
-    status VARCHAR(16) NOT NULL,     -- available, under_inspection?, in_service 
+    email VARCHAR(100) NOT NULL,
+    status VARCHAR(16) DEFAULT 'AVAILABLE',     -- available, under_inspection?, in_service 
     constract_start_date DATE NOT NULL,
     constract_end_date DATE,    
     birthdate DATE NOT NULL
@@ -198,8 +198,8 @@ CREATE TABLE Copy (
 CREATE TABLE LibraryLoans (
     library VARCHAR(200),
     copy VARCHAR(200),
-    start_date VARCHAR(100),
-    return_date VARCHAR(100),
+    start_date DATETIME,
+    return_date DATETIME,
     PRIMARY KEY (copy, start_date),
     CONSTRAINT fk_library FOREIGN KEY (library) REFERENCES Library(cif),
     CONSTRAINT fk_copy_lib_loan FOREIGN KEY (copy) REFERENCES Copy(signature)
