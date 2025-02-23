@@ -83,7 +83,7 @@ CREATE TABLE dL_Route_Stops (
     route_id VARCHAR(5),
     municipality_name VARCHAR(64),
     municipality_province VARCHAR(64),
-    address VARCHAR(64)
+    address VARCHAR(64),
     seq_order NUMBER,
     stop_time TIME,
     PRIMARY KEY (route_id, municipality_name, municipality_province, address),    
