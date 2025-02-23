@@ -62,7 +62,7 @@ CREATE TABLE Bibusero(
     email VARCHAR(100) NOT NULL,
     status VARCHAR(16) DEFAULT 'AVAILABLE',     -- available, under_inspection?, in_service 
     constract_start_date DATE NOT NULL,
-    constract_end_date DATE,    
+    constract_end_date DATE,                    -- CAN BE NULL  
     birthdate DATE NOT NULL
 );
 
@@ -118,7 +118,7 @@ CREATE TABLE Sanctions (
     user_id NUMBER,
     day DATE,
     duration NUMBER,
-    PRIMARY KEY (user_id, day)
+    PRIMARY KEY (user_id, day),
     CONSTRAINT fk_user_sanctions FOREIGN KEY (user_id) REFERENCES Users(user_id)
 );
 
@@ -217,9 +217,10 @@ CREATE TABLE UserLoans (
 
 CREATE TABLE Comments (
     loan_copy VARCHAR(200),
-    loan_date DATE,
+    loan_date DATETIME,
+    return DATETIME,
     post VARCHAR(500),
-    post_date DATE,
+    post_date DATETIME,
     likes NUMBER,
     dislikes NUMBER,
     PRIMARY KEY (loan_copy, loan_date),
