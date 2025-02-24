@@ -7,7 +7,7 @@ INSERT INTO Bibus VALUES();
 -- LIB_ADDRESS
 
 INSERT INTO Bibusero VALUES();
-INSERT INTO Municipality VALUES();
+INSERT INTO Municipality SELECT town, province, to_number(population) FROM fsdb.busstops;
 INSERT INTO Books VALUES();
 
 INSERT INTO Route VALUES();
