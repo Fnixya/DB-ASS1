@@ -48,15 +48,13 @@ CREATE TABLE Library (
 CREATE TABLE Bibus(
     license_plate VARCHAR(16) PRIMARY KEY,
     status VARCHAR(16) DEFAULT 'AVAILABLE',     -- ?????
-    last_itv DATE NOT NULL,
+    last_itv TIMESTAMP NOT NULL,
     next_itv DATE NOT NULL
 );
 
 CREATE TABLE Bibusero(
     passport VARCHAR(10) PRIMARY KEY,
-    name VARCHAR(64) NOT NULL,
-    surname1 VARCHAR(64) NOT NULL,
-    surname2 VARCHAR(64),
+    fullname VARCHAR(80) NOT NULL,
     phone_number NUMBER NOT NULL,
     address VARCHAR(100),
     email VARCHAR(100) NOT NULL,
