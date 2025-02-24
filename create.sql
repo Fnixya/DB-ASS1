@@ -48,7 +48,7 @@ CREATE TABLE Library (
 CREATE TABLE Bibus(
     license_plate VARCHAR(16) PRIMARY KEY,
     status VARCHAR(16) DEFAULT 'AVAILABLE',     -- ?????
-    last_itv DATETIME NOT NULL,
+    last_itv DATE NOT NULL,
     next_itv DATE NOT NULL
 );
 
@@ -198,8 +198,8 @@ CREATE TABLE Copy (
 CREATE TABLE LibraryLoans (
     library VARCHAR(200),
     copy VARCHAR(200),
-    start_date DATETIME,
-    return_date DATETIME,
+    start_date date,
+    return_date date,
     PRIMARY KEY (copy, start_date),
     CONSTRAINT fk_library FOREIGN KEY (library) REFERENCES Library(cif),
     CONSTRAINT fk_copy_lib_loan FOREIGN KEY (copy) REFERENCES Copy(signature)
@@ -217,10 +217,10 @@ CREATE TABLE UserLoans (
 
 CREATE TABLE Comments (
     loan_copy VARCHAR(200),
-    loan_date DATETIME,
-    return DATETIME,
+    loan_date date,
+    return date,
     post VARCHAR(500),
-    post_date DATETIME,
+    post_date date,
     likes NUMBER,
     dislikes NUMBER,
     PRIMARY KEY (loan_copy, loan_date),
