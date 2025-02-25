@@ -66,32 +66,41 @@ INSERT INTO dL_Route_Stops
 
 INSERT INTO Libraries VALUES();
 
--- users have duplicated addresses
--- unique constraint error
--- should we make address a separate relation?
-INSERT INTO Users
+-- some users have two different addresses and towns
+INSERT INTO USERS
     SELECT DISTINCT
-        TO_NUMBER(FSDB.LOANS.USER_ID),
-        FSDB.LOANS.NAME, 
-        FSDB.LOANS.SURNAME1, 
-        FSDB.LOANS.SURNAME2,
-        FSDB.LOANS.PASSPORT, 
-        CASE
-            WHEN VALIDATE_CONVERSION(FSDB.LOANS.BIRTHDATE AS DATE, 'dd-mm-yyyy') = 1 THEN
-                TO_DATE(FSDB.LOANS.BIRTHDATE, 'dd-mm-yyyy')
-            ELSE
-                NULL
-            END AS 
-        BIRTHDATE,
-        TO_NUMBER(FSDB.LOANS.PHONE),
-        FSDB.LOANS.TOWN,
-        MUNICIPALITIES.PROVINCE,
-        FSDB.LOANS.ADDRESS,
-        FSDB.LOANS.EMAIL
-    FROM FSDB.LOANS
-    JOIN MUNICIPALITIES
-    ON FSDB.LOANS.TOWN = MUNICIPALITIES.NAME
+        USER_ID, NAME, SURNAME1, SURNAME2, PASSPORT, BIRTHDATE, PHONE, TOWN, PROVINCE, ADDRESS, EMAIL
+    FROM
+    (
+        SELECT DISTINCT 
+            TO_NUMBER(LOANS.USER_ID) AS USER_ID,
+            LOANS.NAME, 
+            LOANS.SURNAME1, 
+            LOANS.SURNAME2,
+            LOANS.PASSPORT, 
+            CASE
+                WHEN VALIDATE_CONVERSION(LOANS.BIRTHDATE AS DATE, 'dd-mm-yyyy') = 1 THEN
+                    TO_DATE(LOANS.BIRTHDATE, 'dd-mm-yyyy')
+                ELSE
+                    NULL
+                END AS 
+            BIRTHDATE,
+            TO_NUMBER(LOANS.PHONE) AS PHONE,
+            LOANS.TOWN,
+            MUNICIPALITIES.PROVINCE,
+            LOANS.ADDRESS,
+            LOANS.EMAIL,
+            TO_TIMESTAMP(LOANS.DATE_TIME, 'dd/mm/yyyy HH24:MI:SS') AS DATE_TIME,
+            TO_TIMESTAMP(LOANS.RETURN, 'dd/mm/yyyy HH24:MI:SS') AS RETURN,
+            ROW_NUMBER() OVER (PARTITION BY LOANS.USER_ID ORDER BY RETURN ASC) AS RECENCY
+        FROM FSDB.LOANS LOANS
+        JOIN MUNICIPALITIES
+        ON FSDB.LOANS.TOWN = MUNICIPALITIES.NAME
+    )
+    WHERE RECENCY=1
 ;
+
+
 
 -- doesnt work
 INSERT INTO Books 
@@ -107,18 +116,39 @@ INSERT INTO Books
     FROM FSDB.ACERVUS;
 
 INSERT INTO Awards VALUES();
-
 INSERT INTO Contributors VALUES();
 INSERT INTO AlternativeTitle VALUES();
 
+-- not verified to work
+INSERT INTO Editions
+    SELECT DISTINCT 
+        ISBN,
+        TITLE,
+        MAIN_AUTHOR,
+        EDITION,
+        PUBLISHER,
+        -- NO LENGTH
+        SERIES
+        -- NO LEGAL DEPOSIT
+        PUB_PLACE,
+        TO_DATE(PUB_DATE, 'dd-mm-yyyy'),
+        COPYRIGHT,
+        DIMENSIONS,
+        PYHSICAL_FEATURES,
+        EXTENSION,
+        ATTACHED_MATERIALS, -- ANCILLARY
+        NOTES,
+        TO_NUMBER(NATIONAL_LIB_ID),
+        URL
+    FROM FSDB.ACERVUS
+;
 
-INSERT INTO Edition VALUES();
+-- no data about sanctions in old database
+-- INSERT INTO Sanctions;
 
-INSERT INTO Sanctions VALUES();
-
--- not working
-INSERT INTO Copies 
-    SELECT 
+-- not verified to work
+INSERT INTO Copies (signature, edition, condition, comments)
+    SELECT DISTINCT
         SIGNATURE, 
         ISBN,
         condition,
@@ -131,7 +161,19 @@ INSERT INTO Copies
 -- need edition
 INSERT INTO AdditionalLanguage VALUES();
 
+-- not verified to work
 INSERT INTO UserLoans VALUES();
+
 INSERT INTO LibraryLoans VALUES();
 
-INSERT INTO Comments VALUES();
+-- not verified to work
+INSERT INTO Comments
+    SELECT DISTINCT
+        SIGNATURE,
+        TO_DATE(DATE_TIME, 'dd-mm-yyyy'),
+        TO_DATE(RETURN, 'dd-mm-yyyy'),
+        POST,
+        TO_DATE(POST_DATE, 'dd-mm-yyyy'),
+        TO_NUMBER(LIKES),
+        TO_NUMBER(DISLIKES),
+    FROM FSDB.LOANS;

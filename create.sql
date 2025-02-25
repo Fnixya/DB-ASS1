@@ -74,8 +74,8 @@ CREATE TABLE Routes (
 );
 
 CREATE TABLE Stops (
-    municipality_name VARCHAR(64),
-    municipality_province VARCHAR(64),
+    municipality_name VARCHAR(50),
+    municipality_province VARCHAR(22),
     address VARCHAR(150),
     PRIMARY KEY (municipality_name, municipality_province, address),
     CONSTRAINT fk_municipality_stops FOREIGN KEY (municipality_name, municipality_province) REFERENCES Municipalities(name, province)
@@ -105,8 +105,8 @@ CREATE TABLE Users (
     passport VARCHAR(20) UNIQUE,
     birthdate DATE,
     phone_number NUMBER NOT NULL,
-    municipality_name VARCHAR(64),
-    municipality_province VARCHAR(64),
+    municipality_name VARCHAR(50),
+    municipality_province VARCHAR(22),
     address VARCHAR(150),
     email VARCHAR(100),
     CONSTRAINT fk_municipality_users FOREIGN KEY (municipality_name, municipality_province) REFERENCES Municipalities(name, province)
@@ -160,18 +160,19 @@ CREATE TABLE Editions (
     isbn VARCHAR(20) PRIMARY KEY, 
     book_title VARCHAR(200),
     book_author VARCHAR(100),
-    edition VARCHAR(200), 
-    publisher VARCHAR(200), 
+    edition VARCHAR(50), 
+    publisher VARCHAR(100), 
     length VARCHAR(200), 
-    series VARCHAR(200), 
+    series VARCHAR(50), 
     legal_deposit VARCHAR(200), 
     place_of_publication VARCHAR(200), 
     date_of_publication DATE, 
     copyright VARCHAR(20), 
-    dimensions VARCHAR(200), 		
+    dimensions VARCHAR(50), 		
     physical_features VARCHAR(200), 
+    attached_materials VARCHAR(200), 
     ancillary VARCHAR(200), 
-    notes VARCHAR(200), 
+    notes VARCHAR(500), 
     national_library_id NUMBER UNIQUE,
     URL VARCHAR(200) UNIQUE,
     CONSTRAINT fk_book_edition FOREIGN KEY (book_title, book_author) REFERENCES Books(title, main_author)
@@ -195,7 +196,7 @@ CREATE TABLE Copies (
 
 CREATE TABLE LibraryLoans (
     library VARCHAR(200),
-    copy VARCHAR(200),
+    copy VARCHAR(5),
     start_date date,
     return_date date,
     PRIMARY KEY (copy, start_date),
@@ -205,7 +206,7 @@ CREATE TABLE LibraryLoans (
 
 CREATE TABLE UserLoans (
     user_id NUMBER,
-    copy VARCHAR(200),
+    copy VARCHAR(5),
     start_date DATE,
     return_date DATE,
     PRIMARY KEY (copy, start_date),
@@ -214,10 +215,10 @@ CREATE TABLE UserLoans (
 );
 
 CREATE TABLE Comments (
-    loan_copy VARCHAR(200),
+    loan_copy VARCHAR(5),
     loan_date date,
     return date,
-    post VARCHAR(500),
+    post VARCHAR(2000),
     post_date date,
     likes NUMBER,
     dislikes NUMBER,
