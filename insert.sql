@@ -67,9 +67,11 @@ INSERT INTO dL_Route_Stops
 INSERT INTO Libraries VALUES();
 
 -- users have duplicated addresses
+-- unique constraint error
+-- should we make address a separate relation?
 INSERT INTO Users
     SELECT DISTINCT
-        FSDB.LOANS.USER_ID,
+        TO_NUMBER(FSDB.LOANS.USER_ID),
         FSDB.LOANS.NAME, 
         FSDB.LOANS.SURNAME1, 
         FSDB.LOANS.SURNAME2,
@@ -81,7 +83,7 @@ INSERT INTO Users
                 NULL
             END AS 
         BIRTHDATE,
-        FSDB.LOANS.PHONE,
+        TO_NUMBER(FSDB.LOANS.PHONE),
         FSDB.LOANS.TOWN,
         MUNICIPALITIES.PROVINCE,
         FSDB.LOANS.ADDRESS,
@@ -108,11 +110,23 @@ INSERT INTO Awards VALUES();
 
 INSERT INTO Contributors VALUES();
 INSERT INTO AlternativeTitle VALUES();
+
+
 INSERT INTO Edition VALUES();
 
 INSERT INTO Sanctions VALUES();
 
-INSERT INTO Copy VALUES();
+-- not working
+INSERT INTO Copies 
+    SELECT 
+        SIGNATURE, 
+        ISBN,
+        condition,
+        COMMENTS,
+        -- deregistration_date
+    FROM FSDB.ACERVUS
+    WHERE SIGNATURE IS NOT NULL AND ISBN IS NOT NULL AND COMMENTS IS NOT NULL
+;
 
 -- need edition
 INSERT INTO AdditionalLanguage VALUES();
