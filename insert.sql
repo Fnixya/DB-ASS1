@@ -118,10 +118,8 @@ INSERT INTO Books
         MAIN_AUTHOR,
         PUB_COUNTRY,
         ORIGINAL_LANGUAGE,
-        TO_DATE(PUB_DATE, 'yyyy'),
         TOPIC,
         CONTENT_NOTES,
-        COPYRIGHT
     FROM FSDB.ACERVUS;
 
 INSERT INTO Awards VALUES();
