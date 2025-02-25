@@ -1,3 +1,4 @@
+-- good
 INSERT INTO Bibus (license_plate, last_itv, next_itv)
     SELECT DISTINCT 
         MIN(PLATE), 
@@ -8,7 +9,7 @@ INSERT INTO Bibus (license_plate, last_itv, next_itv)
     GROUP BY PLATE
 ;
 
--- not verified to work
+-- good
 INSERT INTO Bibuseros (passport, fullname, phone_number, address, email, contract_start_date, contract_end_date, birthdate)
     SELECT DISTINCT 
         LIB_PASSPORT,
@@ -27,26 +28,29 @@ INSERT INTO Bibuseros (passport, fullname, phone_number, address, email, contrac
     FROM FSDB.BUSSTOPS
 ;
 
+-- ??
 INSERT INTO Municipalities SELECT DISTINCT town, province, to_number(population) FROM fsdb.busstops;
 
+-- doesnt work
 INSERT INTO Books 
     SELECT DISTINCT
         TITLE, 
         MAIN_AUTHOR,
         PUB_COUNTRY,
         ORIGINAL_LANGUAGE,
-        TO_DATE(PUB_DATE, 'dd.mm.yyyy'),
+        TO_DATE(PUB_DATE, 'yyyy'),
         TOPIC,
         CONTENT_NOTES,
         COPYRIGHT
     FROM FSDB.ACERVUS;
 
+-- good
 INSERT INTO Routes 
     SELECT DISTINCT 
         ROUTE_ID,
         TO_DATE(STOPDATE, 'dd-mm-yyyy'),
-        LIB_PASSPORT,
-        PLATE
+        PLATE,
+        LIB_PASSPORT
     FROM FSDB.BUSSTOPS
 ;
 

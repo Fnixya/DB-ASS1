@@ -125,11 +125,9 @@ CREATE TABLE Books (
     main_author VARCHAR(100),
     country_of_publication VARCHAR(50),
     original_language VARCHAR(100), 
-    date_of_publication DATE, 
     topic VARCHAR(200),
     -- subject VARCHAR(100),
     content_notes VARCHAR(100),
-    copyright VARCHAR(20), 
     -- number_of_publications NUMBER,
     PRIMARY KEY (title, main_author)
 );
@@ -168,6 +166,8 @@ CREATE TABLE Editions (
     series VARCHAR(200), 
     legal_deposit VARCHAR(200), 
     place_of_publication VARCHAR(200), 
+    date_of_publication DATE, 
+    copyright VARCHAR(20), 
     dimensions VARCHAR(200), 		
     physical_features VARCHAR(200), 
     ancillary VARCHAR(200), 
