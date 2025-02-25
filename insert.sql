@@ -138,7 +138,7 @@ INSERT INTO Editions ()
         SERIES,
         -- NO LEGAL DEPOSIT
         PUB_PLACE,
-        TO_DATE(PUB_DATE, 'dd-mm-yyyy'),
+        TO_DATE(PUB_DATE, 'yyyy'),
         COPYRIGHT,
         DIMENSIONS,
         PYHSICAL_FEATURES,
