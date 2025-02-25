@@ -108,8 +108,20 @@ INSERT INTO USERS
 
 -- Books and Editions --------------------------------------------------------------------------------------------
 
-
-INSERT INTO Libraries VALUES();
+-- where to get the cif???
+-- this is incomplete, copilot filled this
+INSERT INTO Libraries
+    SELECT DISTINCT
+        -- CIF,
+        -- NAME,
+        -- TO_DATE(DATE_OF_FOUNDATION, 'dd-mm-yyyy'),
+        TOWN,
+        PROVINCE,
+        ADDRESS,
+        EMAIL,
+        TO_NUMBER(PHONE)
+    FROM FSDB.ACERVUS
+;
 
 -- doesnt work
 INSERT INTO Books 
