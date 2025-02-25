@@ -1,3 +1,5 @@
+-- Municipality, Bibus, Bibuseros and Routes
+
 -- good
 INSERT INTO Bibus (license_plate, last_itv, next_itv)
     SELECT DISTINCT 
@@ -50,7 +52,7 @@ INSERT INTO Stops
     FROM FSDB.BUSSTOPS
 ;
 
--- good, i think
+-- good
 INSERT INTO dL_Route_Stops 
     SELECT DISTINCT 
         ROUTE_ID,
@@ -62,11 +64,12 @@ INSERT INTO dL_Route_Stops
     FROM FSDB.BUSSTOPS
 ;
 
--- Books, Users and Loans ----------------------------------------------------
 
-INSERT INTO Libraries VALUES();
+--- Users and Sanctions --------------------------------------------------------------------------------------------
 
--- some users have two different addresses and towns
+
+-- good
+-- chooses the address ad town from the latest loan
 INSERT INTO USERS
     SELECT DISTINCT
         USER_ID, NAME, SURNAME1, SURNAME2, PASSPORT, BIRTHDATE, PHONE, TOWN, PROVINCE, ADDRESS, EMAIL
@@ -83,8 +86,7 @@ INSERT INTO USERS
                     TO_DATE(LOANS.BIRTHDATE, 'dd-mm-yyyy')
                 ELSE
                     NULL
-                END AS 
-            BIRTHDATE,
+            END AS BIRTHDATE,
             TO_NUMBER(LOANS.PHONE) AS PHONE,
             LOANS.TOWN,
             MUNICIPALITIES.PROVINCE,
@@ -100,7 +102,14 @@ INSERT INTO USERS
     WHERE RECENCY=1
 ;
 
+-- no data about sanctions in old database
+-- INSERT INTO Sanctions ....;
 
+
+-- Books and Editions --------------------------------------------------------------------------------------------
+
+
+INSERT INTO Libraries VALUES();
 
 -- doesnt work
 INSERT INTO Books 
@@ -120,7 +129,7 @@ INSERT INTO Contributors VALUES();
 INSERT INTO AlternativeTitle VALUES();
 
 -- not verified to work
-INSERT INTO Editions
+INSERT INTO Editions ()
     SELECT DISTINCT 
         ISBN,
         TITLE,
@@ -128,7 +137,7 @@ INSERT INTO Editions
         EDITION,
         PUBLISHER,
         -- NO LENGTH
-        SERIES
+        SERIES,
         -- NO LEGAL DEPOSIT
         PUB_PLACE,
         TO_DATE(PUB_DATE, 'dd-mm-yyyy'),
@@ -143,10 +152,7 @@ INSERT INTO Editions
     FROM FSDB.ACERVUS
 ;
 
--- no data about sanctions in old database
--- INSERT INTO Sanctions;
-
--- not verified to work
+-- not verified to work (needs insertion of edition first)
 INSERT INTO Copies (signature, edition, condition, comments)
     SELECT DISTINCT
         SIGNATURE, 
@@ -159,14 +165,24 @@ INSERT INTO Copies (signature, edition, condition, comments)
 ;
 
 -- need edition
-INSERT INTO AdditionalLanguage VALUES();
+INSERT INTO AdditionalLanguages VALUES();
 
--- not verified to work
-INSERT INTO UserLoans VALUES();
+
+-- Loans and Comments --------------------------------------------------------------------------------------------
+
+
+-- not verified to work (needs insertion of copy first)
+INSERT INTO UserLoans
+    SELECT DISTINCT
+        TO_NUMBER(USER_ID),
+        COPY,
+        TO_TIMESTAMP(LOANS.DATE_TIME, 'dd/mm/yyyy HH24:MI:SS') AS DATE_TIME,
+        TO_TIMESTAMP(LOANS.RETURN, 'dd/mm/yyyy HH24:MI:SS') AS RETURN,
+    FROM FSDB.LOANS;
 
 INSERT INTO LibraryLoans VALUES();
 
--- not verified to work
+-- not verified to work (needs user loans first)
 INSERT INTO Comments
     SELECT DISTINCT
         SIGNATURE,
