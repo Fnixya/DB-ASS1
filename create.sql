@@ -59,16 +59,16 @@ CREATE TABLE Bibuseros(
     address VARCHAR(100),
     email VARCHAR(100) NOT NULL,
     status VARCHAR(16) DEFAULT 'AVAILABLE',     -- available, under_inspection?, in_service 
-    constract_start_date DATE NOT NULL,
-    constract_end_date DATE,                    -- CAN BE NULL  
-    birthdate DATE NOT NULL
+    contract_start_date DATE NOT NULL,
+    contract_end_date DATE,                    -- CAN BE NULL  
+    birthdate DATE
 );
 
 CREATE TABLE Routes (
     route_id VARCHAR(5) PRIMARY KEY,
     day DATE NOT NULL,
     bibus VARCHAR(16),
-    bibusero VARCHAR(9),    
+    bibusero VARCHAR(20),    
     CONSTRAINT fk_bibus FOREIGN KEY (bibus) REFERENCES Bibus(license_plate),
     CONSTRAINT fk_bibusero FOREIGN KEY (bibusero) REFERENCES Bibuseros(passport)
 );
