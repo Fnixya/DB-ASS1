@@ -9,7 +9,7 @@ INSERT INTO Bibus (license_plate, last_itv, next_itv)
 ;
 
 -- not verified to work
-INSERT INTO Bibusero (passport, name, phone_number, address, email, constract_start_date, constract_end_date, birthdate)
+INSERT INTO Bibusero (passport, fullname, phone_number, address, email, constract_start_date, constract_end_date, birthdate)
     SELECT DISTINCT 
         LIB_PASSPORT,
         LIB_FULLNAME,
@@ -18,7 +18,7 @@ INSERT INTO Bibusero (passport, name, phone_number, address, email, constract_st
         LIB_EMAIL,
         TO_DATE(CONT_START, 'dd.mm.yyyy'),
         TO_DATE(CONT_END, 'dd.mm.yyyy'),
-        LIB_BIRTHDATE
+        TO_DATE(LIB_BIRTHDATE, 'dd-mm-yyyy')
     FROM FSDB.BUSSTOPS
 ;
 

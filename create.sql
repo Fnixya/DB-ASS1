@@ -53,7 +53,7 @@ CREATE TABLE Bibus(
 );
 
 CREATE TABLE Bibusero(
-    passport VARCHAR(10) PRIMARY KEY,
+    passport VARCHAR(20) PRIMARY KEY,
     fullname VARCHAR(80) NOT NULL,
     phone_number NUMBER NOT NULL,
     address VARCHAR(100),
