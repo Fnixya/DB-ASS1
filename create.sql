@@ -1,35 +1,35 @@
 DROP TABLE Comments;
 DROP TABLE UserLoans;
 DROP TABLE LibraryLoans;
-DROP TABLE Copy;
-DROP TABLE AdditionalLanguage;
-DROP TABLE Edition;
+DROP TABLE Copies;
+DROP TABLE AdditionalLanguages;
+DROP TABLE Editions;
 DROP TABLE Awards;
-DROP TABLE AlternativeTitle;
+DROP TABLE AlternativeTitles;
 DROP TABLE Contributors;
 DROP TABLE Books;
 DROP TABLE Sanctions;
 DROP TABLE Users;
 DROP TABLE dL_Route_Stops;
 DROP TABLE Stops;
-DROP TABLE Route;
-DROP TABLE Bibusero;
+DROP TABLE Routes;
+DROP TABLE Bibuseros;
 DROP TABLE Bibus;
-DROP TABLE Library;
-DROP TABLE Municipality;
+DROP TABLE Libraries;
+DROP TABLE Municipalities;
 
 
--- Municipality and Library --------------------------------------------------
+-- Municipalities and Libraries --------------------------------------------------
 
 
-CREATE TABLE Municipality (
+CREATE TABLE Municipalities (
     name VARCHAR(50),
     province VARCHAR(22),
     population NUMBER NOT NULL,
     PRIMARY KEY (name, province)
 );
 
-CREATE TABLE Library (
+CREATE TABLE Libraries (
     cif VARCHAR(64) PRIMARY KEY,
     name VARCHAR(64),
     date_of_foundation DATE,
@@ -38,7 +38,7 @@ CREATE TABLE Library (
     address VARCHAR(100),
     email VARCHAR(100),
     phone_number NUMBER,
-    CONSTRAINT fk_municipality_library FOREIGN KEY (municipality_name, municipality_province) REFERENCES Municipality(name, province)
+    CONSTRAINT fk_municipality_library FOREIGN KEY (municipality_name, municipality_province) REFERENCES Municipalities(name, province)
 );
 
 
@@ -52,7 +52,7 @@ CREATE TABLE Bibus(
     next_itv DATE NOT NULL
 );
 
-CREATE TABLE Bibusero(
+CREATE TABLE Bibuseros(
     passport VARCHAR(10) PRIMARY KEY,
     fullname VARCHAR(80) NOT NULL,
     phone_number NUMBER NOT NULL,
@@ -64,13 +64,13 @@ CREATE TABLE Bibusero(
     birthdate DATE NOT NULL
 );
 
-CREATE TABLE Route (
+CREATE TABLE Routes (
     route_id VARCHAR(5) PRIMARY KEY,
     day DATE NOT NULL,
     bibus VARCHAR(16),
     bibusero VARCHAR(9),    
     CONSTRAINT fk_bibus FOREIGN KEY (bibus) REFERENCES Bibus(license_plate),
-    CONSTRAINT fk_bibusero FOREIGN KEY (bibusero) REFERENCES Bibusero(passport)
+    CONSTRAINT fk_bibusero FOREIGN KEY (bibusero) REFERENCES Bibuseros(passport)
 );
 
 CREATE TABLE Stops (
@@ -78,7 +78,7 @@ CREATE TABLE Stops (
     municipality_province VARCHAR(64),
     address VARCHAR(150),
     PRIMARY KEY (municipality_name, municipality_province, address),
-    CONSTRAINT fk_municipality_stops FOREIGN KEY (municipality_name, municipality_province) REFERENCES Municipality(name, province)
+    CONSTRAINT fk_municipality_stops FOREIGN KEY (municipality_name, municipality_province) REFERENCES Municipalities(name, province)
 );
 
 CREATE TABLE dL_Route_Stops (
@@ -90,7 +90,7 @@ CREATE TABLE dL_Route_Stops (
     stop_time DATE,
     PRIMARY KEY (route_id, municipality_name, municipality_province, address),    
     CONSTRAINT fk_stop FOREIGN KEY (municipality_name, municipality_province, address) REFERENCES Stops(municipality_name, municipality_province, address),
-    CONSTRAINT fk_route FOREIGN KEY (route_id) REFERENCES Route(route_id)
+    CONSTRAINT fk_route FOREIGN KEY (route_id) REFERENCES Routes(route_id)
 );
 
 
@@ -109,7 +109,7 @@ CREATE TABLE Users (
     municipality_province VARCHAR(64),
     address VARCHAR(100),
     email VARCHAR(50),
-    CONSTRAINT fk_municipality_users FOREIGN KEY (municipality_name, municipality_province) REFERENCES Municipality(name, province)
+    CONSTRAINT fk_municipality_users FOREIGN KEY (municipality_name, municipality_province) REFERENCES Municipalities(name, province)
 );
 
 CREATE TABLE Sanctions (
@@ -123,14 +123,14 @@ CREATE TABLE Sanctions (
 CREATE TABLE Books (
     title VARCHAR(200),
     main_author VARCHAR(100),
-    country_of_publication VARCHAR(100),
+    country_of_publication VARCHAR(50),
     original_language VARCHAR(100), 
     date_of_publication DATE, 
-    topic VARCHAR(100),
-    subject VARCHAR(100),
+    topic VARCHAR(200),
+    -- subject VARCHAR(100),
     content_notes VARCHAR(100),
-    copyright VARCHAR(100), 
-    number_of_publications NUMBER,
+    copyright VARCHAR(20), 
+    -- number_of_publications NUMBER,
     PRIMARY KEY (title, main_author)
 );
 
@@ -142,7 +142,7 @@ CREATE TABLE Contributors (
     CONSTRAINT fk_book_contributors FOREIGN KEY (book_title, book_author) REFERENCES Books(title, main_author)
 );
 
-CREATE TABLE AlternativeTitle (
+CREATE TABLE AlternativeTitles (
     title VARCHAR(200),
     book_title VARCHAR(200),
     book_author VARCHAR(100),
@@ -158,7 +158,7 @@ CREATE TABLE Awards (
     CONSTRAINT fk_book_awards FOREIGN KEY (book_title, book_author) REFERENCES Books(title, main_author)
 );
 
-CREATE TABLE Edition (
+CREATE TABLE Editions (
     isbn VARCHAR(20) PRIMARY KEY, 
     book_title VARCHAR(200),
     book_author VARCHAR(100),
@@ -177,20 +177,20 @@ CREATE TABLE Edition (
     CONSTRAINT fk_book_edition FOREIGN KEY (book_title, book_author) REFERENCES Books(title, main_author)
 );
 
-CREATE TABLE AdditionalLanguage (
+CREATE TABLE AdditionalLanguages (
     edition VARCHAR(20),
     language VARCHAR(200),
     PRIMARY KEY (edition, language),
-    CONSTRAINT fk_edition_add_language FOREIGN KEY (edition) REFERENCES Edition(isbn)
+    CONSTRAINT fk_edition_add_language FOREIGN KEY (edition) REFERENCES Editions(isbn)
 );
 
-CREATE TABLE Copy (
+CREATE TABLE Copies (
     signature VARCHAR(5) PRIMARY KEY, 
     edition VARCHAR(20) NOT NULL, 
     condition VARCHAR(12), 
     comments VARCHAR(200), 
     deregistration_date VARCHAR(200),
-    CONSTRAINT fk_edition_copy FOREIGN KEY (edition) REFERENCES Edition(isbn)
+    CONSTRAINT fk_edition_copy FOREIGN KEY (edition) REFERENCES Editions(isbn)
 );
 
 CREATE TABLE LibraryLoans (
@@ -199,8 +199,8 @@ CREATE TABLE LibraryLoans (
     start_date date,
     return_date date,
     PRIMARY KEY (copy, start_date),
-    CONSTRAINT fk_library FOREIGN KEY (library) REFERENCES Library(cif),
-    CONSTRAINT fk_copy_lib_loan FOREIGN KEY (copy) REFERENCES Copy(signature)
+    CONSTRAINT fk_library FOREIGN KEY (library) REFERENCES Libraries(cif),
+    CONSTRAINT fk_copy_lib_loan FOREIGN KEY (copy) REFERENCES Copies(signature)
 );
 
 CREATE TABLE UserLoans (
@@ -210,7 +210,7 @@ CREATE TABLE UserLoans (
     return_date DATE,
     PRIMARY KEY (copy, start_date),
     CONSTRAINT fk_user_loan FOREIGN KEY (user_id) REFERENCES Users(user_id),
-    CONSTRAINT fk_copy_usr_loan FOREIGN KEY (copy) REFERENCES Copy(signature)
+    CONSTRAINT fk_copy_usr_loan FOREIGN KEY (copy) REFERENCES Copies(signature)
 );
 
 CREATE TABLE Comments (

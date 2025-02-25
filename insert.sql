@@ -9,7 +9,7 @@ INSERT INTO Bibus (license_plate, last_itv, next_itv)
 ;
 
 -- not verified to work
-INSERT INTO Bibusero (passport, name, phone_number, address, email, constract_start_date, constract_end_date, birthdate)
+INSERT INTO Bibuseros (passport, name, phone_number, address, email, constract_start_date, constract_end_date, birthdate)
     SELECT DISTINCT 
         LIB_PASSPORT,
         LIB_FULLNAME,
@@ -23,11 +23,23 @@ INSERT INTO Bibusero (passport, name, phone_number, address, email, constract_st
 ;
 
 INSERT INTO Municipality SELECT DISTINCT town, province, to_number(population) FROM fsdb.busstops;
-INSERT INTO Books VALUES();
 
-INSERT INTO Route VALUES();
+INSERT INTO Books 
+    SELECT DISTINCT
+        TITLE, 
+        MAIN_AUTHOR,
+        PUB_COUNTRY,
+        ORIGINAL_LANGUAGE,
+        TO_DATE(PUB_DATE, 'dd.mm.yyyy'),
+        TOPIC,
+        CONTENT_NOTES,
+        COPYRIGHT
+    FROM FSDB.ACERVUS;
+
+INSERT INTO Routes VALUES();
+
 INSERT INTO Stops VALUES();
-INSERT INTO Library VALUES();
+INSERT INTO Libraries VALUES();
 INSERT INTO Users VALUES();
 INSERT INTO Awards VALUES();
 INSERT INTO Contributors VALUES();
@@ -37,6 +49,8 @@ INSERT INTO Edition VALUES();
 INSERT INTO Sanctions VALUES();
 INSERT INTO dL_Route_Stops VALUES();
 INSERT INTO Copy VALUES();
+
+-- need edition
 INSERT INTO AdditionalLanguage VALUES();
 
 INSERT INTO UserLoans VALUES();
