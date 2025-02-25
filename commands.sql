@@ -77,3 +77,5 @@ SELECT USER_ID, ADDRESS FROM
     ON FSDB.LOANS.TOWN = MUNICIPALITIES.NAME
     )
 WHERE ROWNUM < 10;
+
+select name from municipalities where name LIKE '%Valverde%';
