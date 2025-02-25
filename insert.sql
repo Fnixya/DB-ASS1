@@ -20,6 +20,7 @@ INSERT INTO Bibusero (passport, fullname, phone_number, address, email, constrac
         TO_DATE(CONT_END, 'dd.mm.yyyy'),
         TO_DATE(LIB_BIRTHDATE, 'dd-mm-yyyy')
     FROM FSDB.BUSSTOPS
+    WHERE LIB_BIRTHDATE != '29-02-1970'
 ;
 
 INSERT INTO Municipality SELECT DISTINCT town, province, to_number(population) FROM fsdb.busstops;
