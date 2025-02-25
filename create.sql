@@ -87,7 +87,7 @@ CREATE TABLE dL_Route_Stops (
     municipality_province VARCHAR(64),
     address VARCHAR(100),
     seq_order NUMBER,
-    stop_time DATE,
+    stop_time TIMESTAMP,
     PRIMARY KEY (route_id, municipality_name, municipality_province, address),    
     CONSTRAINT fk_stop FOREIGN KEY (municipality_name, municipality_province, address) REFERENCES Stops(municipality_name, municipality_province, address),
     CONSTRAINT fk_route FOREIGN KEY (route_id) REFERENCES Routes(route_id)
@@ -99,16 +99,16 @@ CREATE TABLE dL_Route_Stops (
 
 CREATE TABLE Users (
     user_id NUMBER PRIMARY KEY,
-    name VARCHAR(64),
-    surname1 VARCHAR(64) NOT NULL,
-    surname2 VARCHAR(64),
-    passport VARCHAR(9) UNIQUE,
+    name VARCHAR(80) NOT NULL,
+    surname1 VARCHAR(80) NOT NULL,
+    surname2 VARCHAR(80),
+    passport VARCHAR(20) UNIQUE,
     birthdate DATE,
     phone_number NUMBER NOT NULL,
     municipality_name VARCHAR(64),
     municipality_province VARCHAR(64),
-    address VARCHAR(100),
-    email VARCHAR(50),
+    address VARCHAR(150),
+    email VARCHAR(100),
     CONSTRAINT fk_municipality_users FOREIGN KEY (municipality_name, municipality_province) REFERENCES Municipalities(name, province)
 );
 

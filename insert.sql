@@ -28,8 +28,68 @@ INSERT INTO Bibuseros (passport, fullname, phone_number, address, email, contrac
     FROM FSDB.BUSSTOPS
 ;
 
--- ??
+-- good
 INSERT INTO Municipalities SELECT DISTINCT town, province, to_number(population) FROM fsdb.busstops;
+
+-- good
+INSERT INTO Routes 
+    SELECT DISTINCT 
+        ROUTE_ID,
+        TO_DATE(STOPDATE, 'dd-mm-yyyy'),
+        PLATE,
+        LIB_PASSPORT
+    FROM FSDB.BUSSTOPS
+;
+
+-- good
+INSERT INTO Stops 
+    SELECT DISTINCT 
+        TOWN,
+        PROVINCE,
+        ADDRESS
+    FROM FSDB.BUSSTOPS
+;
+
+-- good, i think
+INSERT INTO dL_Route_Stops 
+    SELECT DISTINCT 
+        ROUTE_ID,
+        TOWN,
+        PROVINCE,
+        ADDRESS,
+        ROW_NUMBER() OVER (PARTITION BY ROUTE_ID ORDER BY STOPTIME) AS SEQ_ORDER,
+        TO_TIMESTAMP(STOPTIME, 'HH24:MI:SS') AS STOPTIME
+    FROM FSDB.BUSSTOPS
+;
+
+-- Books, Users and Loans ----------------------------------------------------
+
+INSERT INTO Libraries VALUES();
+
+-- users have duplicated addresses
+INSERT INTO Users
+    SELECT DISTINCT
+        FSDB.LOANS.USER_ID,
+        FSDB.LOANS.NAME, 
+        FSDB.LOANS.SURNAME1, 
+        FSDB.LOANS.SURNAME2,
+        FSDB.LOANS.PASSPORT, 
+        CASE
+            WHEN VALIDATE_CONVERSION(FSDB.LOANS.BIRTHDATE AS DATE, 'dd-mm-yyyy') = 1 THEN
+                TO_DATE(FSDB.LOANS.BIRTHDATE, 'dd-mm-yyyy')
+            ELSE
+                NULL
+            END AS 
+        BIRTHDATE,
+        FSDB.LOANS.PHONE,
+        FSDB.LOANS.TOWN,
+        MUNICIPALITIES.PROVINCE,
+        FSDB.LOANS.ADDRESS,
+        FSDB.LOANS.EMAIL
+    FROM FSDB.LOANS
+    JOIN MUNICIPALITIES
+    ON FSDB.LOANS.TOWN = MUNICIPALITIES.NAME
+;
 
 -- doesnt work
 INSERT INTO Books 
@@ -44,34 +104,14 @@ INSERT INTO Books
         COPYRIGHT
     FROM FSDB.ACERVUS;
 
--- good
-INSERT INTO Routes 
-    SELECT DISTINCT 
-        ROUTE_ID,
-        TO_DATE(STOPDATE, 'dd-mm-yyyy'),
-        PLATE,
-        LIB_PASSPORT
-    FROM FSDB.BUSSTOPS
-;
-
-INSERT INTO Stops 
-    SELECT DISTINCT 
-        STOP_ID,
-        TOWN,
-        PROVINCE,
-        ROUTE_ID
-;
-
-
-INSERT INTO Libraries VALUES();
-INSERT INTO Users VALUES();
 INSERT INTO Awards VALUES();
+
 INSERT INTO Contributors VALUES();
 INSERT INTO AlternativeTitle VALUES();
 INSERT INTO Edition VALUES();
 
 INSERT INTO Sanctions VALUES();
-INSERT INTO dL_Route_Stops VALUES();
+
 INSERT INTO Copy VALUES();
 
 -- need edition
