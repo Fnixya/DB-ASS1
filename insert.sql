@@ -147,13 +147,13 @@ INSERT INTO Books
 	      T1.TITLE, 
 	      T1.MAIN_AUTHOR, 
 	      T2.NEW_LANG, 
-	      T1.NEW_TOPIC 
+	      T1.NEW_TOPIC,
         T1.NEW_CONTENT
     FROM(
         (SELECT DISTINCT 
 	          TITLE, 
 	          MAIN_AUTHOR, 
-	          LISTAGG(TRIM(TOPIC), ',') within group (order by TOPIC) AS NEW_TOPIC 
+	          LISTAGG(TRIM(TOPIC), ',') within group (order by TOPIC) AS NEW_TOPIC, 
             MAX(CONTENT_NOTES) AS NEW_CONTENT
             FROM FSDB.ACERVUS GROUP BY TITLE, MAIN_AUTHOR
         ) T1 
