@@ -196,7 +196,7 @@ CREATE TABLE AdditionalLanguages (
     book_title VARCHAR(200),
     book_author VARCHAR(100),
     PRIMARY KEY (language, book_title, book_author),
-    CONSTRAINT fk_book_add_language FOREIGN KEY (Books) 
+    CONSTRAINT fk_book_add_language FOREIGN KEY (book_title, book_author) 
         REFERENCES Books(title, main_author)
         ON DELETE CASCADE
 );
