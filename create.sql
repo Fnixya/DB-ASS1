@@ -130,8 +130,8 @@ CREATE TABLE Sanctions (
 CREATE TABLE Books (
     title VARCHAR(200),
     main_author VARCHAR(100),
-    original_language VARCHAR(600), 
-    topic VARCHAR(2000),
+    original_language VARCHAR(300), 
+    topic VARCHAR(650),
     -- subject VARCHAR(100),
     content_notes VARCHAR(100),
     -- number_of_publications NUMBER,
