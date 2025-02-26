@@ -139,7 +139,7 @@ CREATE TABLE Books (
 );
 
 CREATE TABLE Contributors (
-    author VARCHAR(100),
+    author VARCHAR(200),
     book_title VARCHAR(200),
     book_author VARCHAR(100),
     PRIMARY KEY (author, book_title, book_author),
