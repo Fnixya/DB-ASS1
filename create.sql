@@ -30,8 +30,8 @@ CREATE TABLE Municipalities (
 );
 
 CREATE TABLE Libraries (
-    cif VARCHAR(64) PRIMARY KEY,
-    name VARCHAR(64),
+    cif VARCHAR(20) PRIMARY KEY,
+    name VARCHAR(80),
     date_of_foundation DATE,
     municipality_name VARCHAR(50),
     municipality_province VARCHAR(22),

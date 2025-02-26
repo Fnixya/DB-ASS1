@@ -89,15 +89,15 @@ INSERT INTO USERS
             END AS BIRTHDATE,
             TO_NUMBER(LOANS.PHONE) AS PHONE,
             LOANS.TOWN,
-            MUNICIPALITIES.PROVINCE,
+            BUSSTOPS.PROVINCE,
             LOANS.ADDRESS,
             LOANS.EMAIL,
             TO_TIMESTAMP(LOANS.DATE_TIME, 'dd/mm/yyyy HH24:MI:SS') AS DATE_TIME,
             TO_TIMESTAMP(LOANS.RETURN, 'dd/mm/yyyy HH24:MI:SS') AS RETURN,
             ROW_NUMBER() OVER (PARTITION BY LOANS.USER_ID ORDER BY RETURN ASC) AS RECENCY
         FROM FSDB.LOANS LOANS
-        JOIN MUNICIPALITIES
-        ON FSDB.LOANS.TOWN = MUNICIPALITIES.NAME
+        JOIN FSDB.BUSSTOPS BUSSTOPS
+        ON LOANS.TOWN = BUSSTOPS.TOWN
     )
     WHERE RECENCY=1
 ;
@@ -108,19 +108,36 @@ INSERT INTO USERS
 
 -- Books and Editions --------------------------------------------------------------------------------------------
 
--- where to get the cif???
--- this is incomplete, copilot filled this
-INSERT INTO Libraries
-    SELECT DISTINCT
-        -- CIF,
-        -- NAME,
-        -- TO_DATE(DATE_OF_FOUNDATION, 'dd-mm-yyyy'),
-        TOWN,
-        PROVINCE,
-        ADDRESS,
-        EMAIL,
-        TO_NUMBER(PHONE)
-    FROM FSDB.ACERVUS
+-- 353 LIBRARIES (USERS WITH NAME LIBRARY)
+-- THERE ARE 20 LIBRARIES THAT DOESNT HAVE A RREGISTERED TOWN IN DB.
+-- THEN WE INSERT ONLY 333 LIBRARIES 
+INSERT INTO Libraries (CIF, NAME, MUNICIPALITY_NAME, MUNICIPALITY_PROVINCE, ADDRESS, EMAIL, phone_number)
+    SELECT 
+        DISTINCT PASSPORT, NAME, TOWN, PROVINCE, ADDRESS, EMAIL, PHONE 
+    FROM 
+        (
+            SELECT 
+                LOANS.PASSPORT,
+                LOANS.NAME,
+                BUSSTOPS.TOWN,
+                BUSSTOPS.PROVINCE,
+                BUSSTOPS.ADDRESS,
+                LOANS.EMAIL,
+                LOANS.PHONE
+            FROM 
+            (
+                SELECT DISTINCT
+                    TOWN,
+                    PROVINCE,
+                    ADDRESS
+                FROM FSDB.BUSSTOPS
+                WHERE HAS_LIBRARY='Y'
+            ) BUSSTOPS
+            LEFT JOIN FSDB.LOANS LOANS
+            ON BUSSTOPS.TOWN=LOANS.TOWN
+            WHERE BUSSTOPS.TOWN IS NOT NULL
+        )
+    WHERE TOWN IN (SELECT NAME FROM MUNICIPALITIES) AND PASSPORT IS NOT NULL
 ;
 
 -- doesnt work
@@ -185,9 +202,9 @@ INSERT INTO AdditionalLanguages VALUES();
 INSERT INTO UserLoans
     SELECT DISTINCT
         TO_NUMBER(USER_ID),
-        COPY,
+        SIGNATURE,
         TO_TIMESTAMP(LOANS.DATE_TIME, 'dd/mm/yyyy HH24:MI:SS') AS DATE_TIME,
-        TO_TIMESTAMP(LOANS.RETURN, 'dd/mm/yyyy HH24:MI:SS') AS RETURN,
+        TO_TIMESTAMP(LOANS.RETURN, 'dd/mm/yyyy HH24:MI:SS') AS RETURN
     FROM FSDB.LOANS;
 
 INSERT INTO LibraryLoans VALUES();
@@ -201,5 +218,5 @@ INSERT INTO Comments
         POST,
         TO_DATE(POST_DATE, 'dd-mm-yyyy'),
         TO_NUMBER(LIKES),
-        TO_NUMBER(DISLIKES),
+        TO_NUMBER(DISLIKES)
     FROM FSDB.LOANS;
