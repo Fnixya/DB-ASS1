@@ -38,7 +38,9 @@ CREATE TABLE Libraries (
     address VARCHAR(100),
     email VARCHAR(100),
     phone_number NUMBER,
-    CONSTRAINT fk_municipality_library FOREIGN KEY (municipality_name, municipality_province) REFERENCES Municipalities(name, province)
+    CONSTRAINT fk_municipality_library FOREIGN KEY (municipality_name, municipality_province) 
+        REFERENCES Municipalities(name, province)
+        ON DELETE CASCADE
 );
 
 
@@ -89,8 +91,11 @@ CREATE TABLE dL_Route_Stops (
     seq_order NUMBER,
     stop_time TIMESTAMP,
     PRIMARY KEY (route_id, municipality_name, municipality_province, address),    
-    CONSTRAINT fk_stop FOREIGN KEY (municipality_name, municipality_province, address) REFERENCES Stops(municipality_name, municipality_province, address),
-    CONSTRAINT fk_route FOREIGN KEY (route_id) REFERENCES Routes(route_id)
+    CONSTRAINT fk_stop FOREIGN KEY (municipality_name, municipality_province, address) 
+        REFERENCES Stops(municipality_name, municipality_province, address) 
+        ON DELETE CASCADE,
+    CONSTRAINT fk_route FOREIGN KEY (route_id) 
+        REFERENCES Routes(route_id) ON DELETE CASCADE
 );
 
 
@@ -117,7 +122,9 @@ CREATE TABLE Sanctions (
     day DATE,
     duration NUMBER,
     PRIMARY KEY (user_id, day),
-    CONSTRAINT fk_user_sanctions FOREIGN KEY (user_id) REFERENCES Users(user_id)
+    CONSTRAINT fk_user_sanctions FOREIGN KEY (user_id) 
+        REFERENCES Users(user_id)
+        ON DELETE CASCADE
 );
 
 CREATE TABLE Books (
@@ -137,7 +144,9 @@ CREATE TABLE Contributors (
     book_title VARCHAR(200),
     book_author VARCHAR(100),
     PRIMARY KEY (author, book_title, book_author),
-    CONSTRAINT fk_book_contributors FOREIGN KEY (book_title, book_author) REFERENCES Books(title, main_author)
+    CONSTRAINT fk_book_contributors FOREIGN KEY (book_title, book_author) 
+        REFERENCES Books(title, main_author)
+        ON DELETE CASCADE
 );
 
 CREATE TABLE AlternativeTitles (
@@ -145,7 +154,9 @@ CREATE TABLE AlternativeTitles (
     book_title VARCHAR(200),
     book_author VARCHAR(100),
     PRIMARY KEY (title, book_title, book_author),
-    CONSTRAINT fk_book_alt_title FOREIGN KEY (book_title, book_author) REFERENCES Books(title, main_author)
+    CONSTRAINT fk_book_alt_title FOREIGN KEY (book_title, book_author) 
+        REFERENCES Books(title, main_author)
+        ON DELETE CASCADE
 );
 
 CREATE TABLE Awards (
@@ -153,7 +164,9 @@ CREATE TABLE Awards (
     book_title VARCHAR(200),
     book_author VARCHAR(100),
     PRIMARY KEY (name, book_title, book_author),
-    CONSTRAINT fk_book_awards FOREIGN KEY (book_title, book_author) REFERENCES Books(title, main_author)
+    CONSTRAINT fk_book_awards FOREIGN KEY (book_title, book_author) 
+        REFERENCES Books(title, main_author)
+        ON DELETE CASCADE
 );
 
 CREATE TABLE Editions (
@@ -175,14 +188,18 @@ CREATE TABLE Editions (
     notes VARCHAR(500), 
     national_library_id NUMBER UNIQUE,
     URL VARCHAR(200) UNIQUE,
-    CONSTRAINT fk_book_edition FOREIGN KEY (book_title, book_author) REFERENCES Books(title, main_author)
+    CONSTRAINT fk_book_edition FOREIGN KEY (book_title, book_author) 
+        REFERENCES Books(title, main_author)
+        ON DELETE CASCADE
 );
 
 CREATE TABLE AdditionalLanguages (
     edition VARCHAR(20),
     language VARCHAR(200),
     PRIMARY KEY (edition, language),
-    CONSTRAINT fk_edition_add_language FOREIGN KEY (edition) REFERENCES Editions(isbn)
+    CONSTRAINT fk_edition_add_language FOREIGN KEY (edition) 
+        REFERENCES Editions(isbn)
+        ON DELETE CASCADE
 );
 
 CREATE TABLE Copies (
@@ -191,7 +208,8 @@ CREATE TABLE Copies (
     condition VARCHAR(12), 
     comments VARCHAR(200), 
     deregistration_date VARCHAR(200),
-    CONSTRAINT fk_edition_copy FOREIGN KEY (edition) REFERENCES Editions(isbn)
+    CONSTRAINT fk_edition_copy FOREIGN KEY (edition) 
+        REFERENCES Editions(isbn)
 );
 
 CREATE TABLE LibraryLoans (
@@ -200,8 +218,10 @@ CREATE TABLE LibraryLoans (
     start_date date,
     return_date date,
     PRIMARY KEY (copy, start_date),
-    CONSTRAINT fk_library FOREIGN KEY (library) REFERENCES Libraries(cif),
-    CONSTRAINT fk_copy_lib_loan FOREIGN KEY (copy) REFERENCES Copies(signature)
+    CONSTRAINT fk_library FOREIGN KEY (library) 
+        REFERENCES Libraries(cif),
+    CONSTRAINT fk_copy_lib_loan FOREIGN KEY (copy) 
+        REFERENCES Copies(signature)
 );
 
 CREATE TABLE UserLoans (
@@ -210,8 +230,10 @@ CREATE TABLE UserLoans (
     start_date DATE,
     return_date DATE,
     PRIMARY KEY (copy, start_date),
-    CONSTRAINT fk_user_loan FOREIGN KEY (user_id) REFERENCES Users(user_id),
-    CONSTRAINT fk_copy_usr_loan FOREIGN KEY (copy) REFERENCES Copies(signature)
+    CONSTRAINT fk_user_loan FOREIGN KEY (user_id) 
+        REFERENCES Users(user_id),
+    CONSTRAINT fk_copy_usr_loan FOREIGN KEY (copy) 
+        REFERENCES Copies(signature)
 );
 
 CREATE TABLE Comments (
@@ -223,5 +245,7 @@ CREATE TABLE Comments (
     likes NUMBER,
     dislikes NUMBER,
     PRIMARY KEY (loan_copy, loan_date),
-    CONSTRAINT fk_loan FOREIGN KEY (loan_copy, loan_date) REFERENCES UserLoans(copy, start_date)
+    CONSTRAINT fk_loan FOREIGN KEY (loan_copy, loan_date) 
+        REFERENCES UserLoans(copy, start_date)
+        ON DELETE CASCADE
 );
