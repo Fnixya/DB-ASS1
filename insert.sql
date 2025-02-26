@@ -174,25 +174,24 @@ INSERT INTO Contributors VALUES();
 INSERT INTO AlternativeTitle VALUES();
 
 -- not verified to work
-INSERT INTO Editions ()
+INSERT INTO Editions 
     SELECT DISTINCT 
         ISBN,
         TITLE,
         MAIN_AUTHOR,
         EDITION,
         PUBLISHER,
-        -- NO LENGTH
+        EXTENSION
         SERIES,
-        -- NO LEGAL DEPOSIT
+        NULL
         PUB_PLACE,
         TO_DATE(PUB_DATE, 'yyyy'),
         COPYRIGHT,
         DIMENSIONS,
         PYHSICAL_FEATURES,
-        EXTENSION,
-        ATTACHED_MATERIALS, -- ANCILLARY
+        ATTACHED_MATERIALS,
         NOTES,
-        TO_NUMBER(NATIONAL_LIB_ID),
+        NATIONAL_LIB_ID)
         URL
     FROM FSDB.ACERVUS
 ;
