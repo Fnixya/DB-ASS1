@@ -213,7 +213,7 @@ CREATE TABLE Copies (
 );
 
 CREATE TABLE LibraryLoans (
-    library VARCHAR(200),
+    library VARCHAR(20),
     copy VARCHAR(5),
     start_date date,
     return_date date,

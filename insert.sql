@@ -99,7 +99,7 @@ INSERT INTO USERS
         JOIN FSDB.BUSSTOPS BUSSTOPS
         ON LOANS.TOWN = BUSSTOPS.TOWN
     )
-    WHERE RECENCY=1
+    WHERE RECENCY=1 AND INSTR(NAME, 'Biblioteca')=0
 ;
 
 -- no data about sanctions in old database
@@ -108,8 +108,9 @@ INSERT INTO USERS
 
 -- Books and Editions --------------------------------------------------------------------------------------------
 
+-- good
 -- 353 LIBRARIES (USERS WITH NAME LIBRARY)
--- THERE ARE 20 LIBRARIES THAT DOESNT HAVE A RREGISTERED TOWN IN DB.
+-- THERE ARE 20 LIBRARIES THAT DOESNT HAVE A REGISTERED TOWN IN DB.
 -- THEN WE INSERT ONLY 333 LIBRARIES 
 INSERT INTO Libraries (CIF, NAME, MUNICIPALITY_NAME, MUNICIPALITY_PROVINCE, ADDRESS, EMAIL, phone_number)
     SELECT 
@@ -201,13 +202,24 @@ INSERT INTO AdditionalLanguages VALUES();
 -- not verified to work (needs insertion of copy first)
 INSERT INTO UserLoans
     SELECT DISTINCT
-        TO_NUMBER(USER_ID),
+        TO_NUMBER(USER_ID) AS USER_ID,
         SIGNATURE,
         TO_TIMESTAMP(LOANS.DATE_TIME, 'dd/mm/yyyy HH24:MI:SS') AS DATE_TIME,
         TO_TIMESTAMP(LOANS.RETURN, 'dd/mm/yyyy HH24:MI:SS') AS RETURN
-    FROM FSDB.LOANS;
+    FROM FSDB.LOANS
+    WHERE USER_ID IN (SELECT USER_ID FROM USERS)
+;
 
-INSERT INTO LibraryLoans VALUES();
+-- not verified to work (needs insertion of copy first)
+INSERT INTO LibraryLoans
+    SELECT DISTINCT
+        PASSPORT,
+        SIGNATURE,
+        TO_TIMESTAMP(LOANS.DATE_TIME, 'dd/mm/yyyy HH24:MI:SS') AS DATE_TIME,
+        TO_TIMESTAMP(LOANS.RETURN, 'dd/mm/yyyy HH24:MI:SS') AS RETURN
+    FROM FSDB.LOANS
+    WHERE PASSPORT IN (SELECT CIF FROM LIBRARIES)
+;
 
 -- not verified to work (needs user loans first)
 INSERT INTO Comments
