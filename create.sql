@@ -192,11 +192,12 @@ CREATE TABLE Editions (
 );
 
 CREATE TABLE AdditionalLanguages (
-    edition VARCHAR(20),
     language VARCHAR(200),
-    PRIMARY KEY (edition, language),
-    CONSTRAINT fk_edition_add_language FOREIGN KEY (edition) 
-        REFERENCES Editions(isbn)
+    book_title VARCHAR(200),
+    book_author VARCHAR(100),
+    PRIMARY KEY (language, book_title, book_author),
+    CONSTRAINT fk_book_add_language FOREIGN KEY (Books) 
+        REFERENCES Books(title, main_author)
         ON DELETE CASCADE
 );
 

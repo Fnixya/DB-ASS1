@@ -194,7 +194,7 @@ INSERT INTO Contributors
 
 INSERT INTO AlternativeTitles SELECT DISTINCT ALT_TITLE, TITLE, MAIN_AUTHOR FROM FSDB.ACERVUS WHERE ALT_TITLE IS NOT NULL;
 
--- not verified to work
+-- no uniqueness
 INSERT INTO Editions 
     SELECT DISTINCT 
         ISBN,
@@ -229,8 +229,8 @@ INSERT INTO Copies (signature, edition, condition, comments)
     WHERE SIGNATURE IS NOT NULL AND ISBN IS NOT NULL AND COMMENTS IS NOT NULL
 ;
 
--- need edition
-INSERT INTO AdditionalLanguages VALUES();
+-- We don't check with main language because there is no row where main_language = other_languages
+INSERT INTO AdditionalLanguages SELECT DISTINCT OTHER_LANGUAGES, TITLE, MAIN_AUTHOR FROM FSDB.ACERVUS WHERE OTHER_LANGUAGES IS NOT NULL;
 
 
 -- Loans and Comments --------------------------------------------------------------------------------------------
