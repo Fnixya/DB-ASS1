@@ -131,7 +131,7 @@ CREATE TABLE Books (
     title VARCHAR(200),
     main_author VARCHAR(100),
     original_language VARCHAR(300), 
-    topic VARCHAR(650),
+    topic VARCHAR(750),
     -- subject VARCHAR(100),
     content_notes VARCHAR(100),
     -- number_of_publications NUMBER,

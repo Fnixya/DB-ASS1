@@ -181,17 +181,17 @@ INSERT INTO Editions
         MAIN_AUTHOR,
         EDITION,
         PUBLISHER,
-        EXTENSION
+        EXTENSION,
         SERIES,
-        NULL
+        NULL,
         PUB_PLACE,
         TO_DATE(PUB_DATE, 'yyyy'),
         COPYRIGHT,
         DIMENSIONS,
-        PYHSICAL_FEATURES,
+        PHYSICAL_FEATURES,
         ATTACHED_MATERIALS,
         NOTES,
-        NATIONAL_LIB_ID)
+        NATIONAL_LIB_ID,
         URL
     FROM FSDB.ACERVUS
 ;
