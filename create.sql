@@ -190,7 +190,7 @@ CREATE TABLE Editions (
     dimensions VARCHAR(50), 		
     physical_features VARCHAR(200), 
     attached_materials VARCHAR(200), 
-    notes VARCHAR(500), 
+    -- notes VARCHAR(500), 
     national_library_id VARCHAR(20) UNIQUE,
     URL VARCHAR(200) UNIQUE,
     CONSTRAINT fk_book_edition FOREIGN KEY (book_title, book_author) 
@@ -209,11 +209,12 @@ CREATE TABLE AdditionalLanguages (
 );
 
 CREATE TABLE Copies (
-    signature VARCHAR(5) PRIMARY KEY, 
-    edition VARCHAR(20) NOT NULL, 
-    condition VARCHAR(12), 
-    comments VARCHAR(200), 
-    deregistration_date VARCHAR(200),
+    signature VARCHAR(20) PRIMARY KEY, 
+    edition VARCHAR(20), 
+    condition VARCHAR(16)
+        CHECK (condition IN ('NEW', 'GOOD', 'WORN', 'VERY USED', 'DETERIORATED')),
+    notes VARCHAR(500), 
+    deregistration_date DATE,
     CONSTRAINT fk_edition_copy FOREIGN KEY (edition) 
         REFERENCES Editions(isbn)
 );

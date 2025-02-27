@@ -142,7 +142,7 @@ INSERT INTO Libraries (CIF, NAME, MUNICIPALITY_NAME, MUNICIPALITY_PROVINCE, ADDR
     WHERE TOWN IN (SELECT NAME FROM MUNICIPALITIES) AND PASSPORT IS NOT NULL
 ;
 
--- ?? rows
+-- 181435 rows
 -- works flawlessly and divinely
 INSERT INTO Books
     SELECT DISTINCT 
@@ -186,10 +186,10 @@ INSERT INTO Books
 
 
 
--- easy: ?? rows
+-- easy: 1433 rows
 INSERT INTO Awards SELECT DISTINCT AWARDS, TITLE, MAIN_AUTHOR FROM FSDB.ACERVUS WHERE AWARDS IS NOT NULL;
 
--- : ?? rows 
+-- : 205729 rows 
 INSERT INTO Contributors
     SELECT DISTINCT *
     FROM(
@@ -209,8 +209,14 @@ INSERT INTO Contributors
       )
 ;
 
--- : ?? rows 
+-- : 6578 rows 
 INSERT INTO AlternativeTitles SELECT DISTINCT ALT_TITLE, TITLE, MAIN_AUTHOR FROM FSDB.ACERVUS WHERE ALT_TITLE IS NOT NULL;
+
+
+-- : 176 rows 
+-- We don't check with main language because there is no row where main_language = other_languages
+INSERT INTO AdditionalLanguages SELECT DISTINCT OTHER_LANGUAGES, TITLE, MAIN_AUTHOR FROM FSDB.ACERVUS WHERE OTHER_LANGUAGES IS NOT NULL;
+
 
 -- : ?? rows 
 -- no uniqueness
@@ -230,7 +236,7 @@ INSERT INTO Editions
         DIMENSIONS,
         PHYSICAL_FEATURES,
         ATTACHED_MATERIALS,
-        NOTES,
+        -- NOTES,
         NATIONAL_LIB_ID,
         URL
     FROM FSDB.ACERVUS
@@ -238,20 +244,16 @@ INSERT INTO Editions
 
 -- : ?? rows 
 -- not verified to work (needs insertion of edition first)
-INSERT INTO Copies (signature, edition, condition, comments)
+INSERT INTO Copies (signature, edition, notes)
     SELECT DISTINCT
         SIGNATURE, 
         ISBN,
-        condition,
-        COMMENTS,
+        -- condition,
+        NOTES
         -- deregistration_date
     FROM FSDB.ACERVUS
-    WHERE SIGNATURE IS NOT NULL AND ISBN IS NOT NULL AND COMMENTS IS NOT NULL
+    WHERE SIGNATURE IS NOT NULL AND ISBN IS NOT NULL AND NOTES IS NOT NULL
 ;
-
--- : ?? rows 
--- We don't check with main language because there is no row where main_language = other_languages
-INSERT INTO AdditionalLanguages SELECT DISTINCT OTHER_LANGUAGES, TITLE, MAIN_AUTHOR FROM FSDB.ACERVUS WHERE OTHER_LANGUAGES IS NOT NULL;
 
 
 -- Loans and Comments --------------------------------------------------------------------------------------------
