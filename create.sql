@@ -30,8 +30,8 @@ CREATE TABLE Municipalities (
 );
 
 CREATE TABLE Libraries (
-    cif VARCHAR(64) PRIMARY KEY,
-    name VARCHAR(64),
+    cif VARCHAR(20) PRIMARY KEY,
+    name VARCHAR(80),
     date_of_foundation DATE,
     municipality_name VARCHAR(50),
     municipality_province VARCHAR(22),
@@ -132,9 +132,8 @@ CREATE TABLE Sanctions (
 CREATE TABLE Books (
     title VARCHAR(200),
     main_author VARCHAR(100),
-    country_of_publication VARCHAR(50),
-    original_language VARCHAR(100), 
-    topic VARCHAR(200),
+    original_language VARCHAR(300), 
+    topic VARCHAR(750),
     -- subject VARCHAR(100),
     content_notes VARCHAR(100),
     -- number_of_publications NUMBER,
@@ -142,7 +141,7 @@ CREATE TABLE Books (
 );
 
 CREATE TABLE Contributors (
-    author VARCHAR(100),
+    author VARCHAR(200),
     book_title VARCHAR(200),
     book_author VARCHAR(100),
     PRIMARY KEY (author, book_title, book_author),
@@ -177,18 +176,17 @@ CREATE TABLE Editions (
     book_author VARCHAR(100),
     edition VARCHAR(50), 
     publisher VARCHAR(100), 
-    length VARCHAR(200), 
+    extension VARCHAR(200), 
     series VARCHAR(50), 
     legal_deposit VARCHAR(200), 
-    place_of_publication VARCHAR(200), 
+    place_of_publication VARCHAR(50), 
     date_of_publication DATE, 
     copyright VARCHAR(20), 
     dimensions VARCHAR(50), 		
     physical_features VARCHAR(200), 
     attached_materials VARCHAR(200), 
-    ancillary VARCHAR(200), 
     notes VARCHAR(500), 
-    national_library_id NUMBER UNIQUE,
+    national_library_id VARCHAR(20) UNIQUE,
     URL VARCHAR(200) UNIQUE,
     CONSTRAINT fk_book_edition FOREIGN KEY (book_title, book_author) 
         REFERENCES Books(title, main_author)
@@ -196,11 +194,12 @@ CREATE TABLE Editions (
 );
 
 CREATE TABLE AdditionalLanguages (
-    edition VARCHAR(20),
     language VARCHAR(200),
-    PRIMARY KEY (edition, language),
-    CONSTRAINT fk_edition_add_language FOREIGN KEY (edition) 
-        REFERENCES Editions(isbn)
+    book_title VARCHAR(200),
+    book_author VARCHAR(100),
+    PRIMARY KEY (language, book_title, book_author),
+    CONSTRAINT fk_book_add_language FOREIGN KEY (book_title, book_author) 
+        REFERENCES Books(title, main_author)
         ON DELETE CASCADE
 );
 
@@ -215,7 +214,7 @@ CREATE TABLE Copies (
 );
 
 CREATE TABLE LibraryLoans (
-    library VARCHAR(200),
+    library VARCHAR(20),
     copy VARCHAR(5),
     start_date date,
     return_date date,

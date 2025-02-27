@@ -89,17 +89,17 @@ INSERT INTO USERS
             END AS BIRTHDATE,
             TO_NUMBER(LOANS.PHONE) AS PHONE,
             LOANS.TOWN,
-            MUNICIPALITIES.PROVINCE,
+            BUSSTOPS.PROVINCE,
             LOANS.ADDRESS,
             LOANS.EMAIL,
             TO_TIMESTAMP(LOANS.DATE_TIME, 'dd/mm/yyyy HH24:MI:SS') AS DATE_TIME,
             TO_TIMESTAMP(LOANS.RETURN, 'dd/mm/yyyy HH24:MI:SS') AS RETURN,
             ROW_NUMBER() OVER (PARTITION BY LOANS.USER_ID ORDER BY RETURN ASC) AS RECENCY
         FROM FSDB.LOANS LOANS
-        JOIN MUNICIPALITIES
-        ON FSDB.LOANS.TOWN = MUNICIPALITIES.NAME
+        JOIN FSDB.BUSSTOPS BUSSTOPS
+        ON LOANS.TOWN = BUSSTOPS.TOWN
     )
-    WHERE RECENCY=1
+    WHERE RECENCY=1 AND INSTR(NAME, 'Biblioteca')=0
 ;
 
 -- no data about sanctions in old database
@@ -108,56 +108,111 @@ INSERT INTO USERS
 
 -- Books and Editions --------------------------------------------------------------------------------------------
 
--- where to get the cif???
--- this is incomplete, copilot filled this
-INSERT INTO Libraries
-    SELECT DISTINCT
-        -- CIF,
-        -- NAME,
-        -- TO_DATE(DATE_OF_FOUNDATION, 'dd-mm-yyyy'),
-        TOWN,
-        PROVINCE,
-        ADDRESS,
-        EMAIL,
-        TO_NUMBER(PHONE)
-    FROM FSDB.ACERVUS
+-- good
+-- 353 LIBRARIES (1: FROM USERS WITH BIBLIOTECA IN NAME) AND 353 (2: FROM BUSSTOPS WITH HAS_LIBRARY='Y')
+-- 1. THERE ARE 20 LIBRARIES THAT DOESNT HAVE A REGISTERED TOWN IN DB.
+-- 2. THERE ARE 20 LIBRARIES THAT DOESNT CIF/PASSPORT.
+-- IN BOTH CASES WE INSERT ONLY 333 LIBRARIES 
+INSERT INTO Libraries (CIF, NAME, MUNICIPALITY_NAME, MUNICIPALITY_PROVINCE, ADDRESS, EMAIL, phone_number)
+    SELECT 
+        DISTINCT PASSPORT, NAME, TOWN, PROVINCE, ADDRESS, EMAIL, PHONE 
+    FROM 
+        (
+            SELECT 
+                LOANS.PASSPORT,
+                LOANS.NAME,
+                BUSSTOPS.TOWN,
+                BUSSTOPS.PROVINCE,
+                BUSSTOPS.ADDRESS,
+                LOANS.EMAIL,
+                LOANS.PHONE
+            FROM 
+            (
+                SELECT DISTINCT
+                    TOWN,
+                    PROVINCE,
+                    ADDRESS
+                FROM FSDB.BUSSTOPS
+                WHERE HAS_LIBRARY='Y'
+            ) BUSSTOPS
+            LEFT JOIN FSDB.LOANS LOANS
+            ON BUSSTOPS.TOWN=LOANS.TOWN
+            WHERE BUSSTOPS.TOWN IS NOT NULL
+        )
+    WHERE TOWN IN (SELECT NAME FROM MUNICIPALITIES) AND PASSPORT IS NOT NULL
 ;
 
--- doesnt work
-INSERT INTO Books 
-    SELECT DISTINCT
-        TITLE, 
-        MAIN_AUTHOR,
-        PUB_COUNTRY,
-        ORIGINAL_LANGUAGE,
-        TOPIC,
-        CONTENT_NOTES,
-    FROM FSDB.ACERVUS;
+-- works pichi picha
+INSERT INTO Books
+    SELECT 
+	      T1.TITLE, 
+	      T1.MAIN_AUTHOR, 
+	      LISTAGG(TRIM(T2.ORIGINAL_LANGUAGE), ',') within group (order by T2.ORIGINAL_LANGUAGE),
+	      LISTAGG(TRIM(T1.TOPIC), ',') within group (order by T1.TOPIC), 
+	      T1.NEW_CONTENT
+    FROM(
+        (SELECT DISTINCT 
+	          TITLE, 
+	          MAIN_AUTHOR, 
+	          TOPIC, 
+		  MAX(CONTENT_NOTES) AS NEW_CONTENT 
+            FROM FSDB.ACERVUS GROUP BY TITLE, MAIN_AUTHOR,TOPIC
+        ) T1 
+        JOIN 
+        (SELECT DISTINCT 
+	          TITLE, 
+	          MAIN_AUTHOR, 
+		  ORIGINAL_LANGUAGE 
+         FROM FSDB.ACERVUS
+        ) T2 
+        ON T1.TITLE=T2.TITLE AND T1.MAIN_AUTHOR=T2.MAIN_AUTHOR
+    ) GROUP BY T1.TITLE, T1.MAIN_AUTHOR, T1.NEW_CONTENT 
+;
 
-INSERT INTO Awards VALUES();
-INSERT INTO Contributors VALUES();
-INSERT INTO AlternativeTitle VALUES();
+-- easy
+INSERT INTO Awards SELECT DISTINCT AWARDS, TITLE, MAIN_AUTHOR FROM FSDB.ACERVUS WHERE AWARDS IS NOT NULL;
 
--- not verified to work
-INSERT INTO Editions ()
+INSERT INTO Contributors
+    SELECT DISTINCT *
+    FROM(
+        (SELECT DISTINCT
+            OTHER_AUTHORS,
+            TITLE,
+            MAIN_AUTHOR
+        FROM FSDB.ACERVUS
+        WHERE OTHER_AUTHORS IS NOT NULL)
+        UNION
+        (SELECT DISTINCT
+            MENTION_AUTHORS,
+            TITLE,
+            MAIN_AUTHOR
+        FROM FSDB.ACERVUS
+        WHERE MENTION_AUTHORS IS NOT NULL)
+      )
+;
+
+
+INSERT INTO AlternativeTitles SELECT DISTINCT ALT_TITLE, TITLE, MAIN_AUTHOR FROM FSDB.ACERVUS WHERE ALT_TITLE IS NOT NULL;
+
+-- no uniqueness
+INSERT INTO Editions 
     SELECT DISTINCT 
         ISBN,
         TITLE,
         MAIN_AUTHOR,
         EDITION,
         PUBLISHER,
-        -- NO LENGTH
+        EXTENSION,
         SERIES,
-        -- NO LEGAL DEPOSIT
+        NULL,
         PUB_PLACE,
         TO_DATE(PUB_DATE, 'yyyy'),
         COPYRIGHT,
         DIMENSIONS,
-        PYHSICAL_FEATURES,
-        EXTENSION,
-        ATTACHED_MATERIALS, -- ANCILLARY
+        PHYSICAL_FEATURES,
+        ATTACHED_MATERIALS,
         NOTES,
-        TO_NUMBER(NATIONAL_LIB_ID),
+        NATIONAL_LIB_ID,
         URL
     FROM FSDB.ACERVUS
 ;
@@ -174,8 +229,8 @@ INSERT INTO Copies (signature, edition, condition, comments)
     WHERE SIGNATURE IS NOT NULL AND ISBN IS NOT NULL AND COMMENTS IS NOT NULL
 ;
 
--- need edition
-INSERT INTO AdditionalLanguages VALUES();
+-- We don't check with main language because there is no row where main_language = other_languages
+INSERT INTO AdditionalLanguages SELECT DISTINCT OTHER_LANGUAGES, TITLE, MAIN_AUTHOR FROM FSDB.ACERVUS WHERE OTHER_LANGUAGES IS NOT NULL;
 
 
 -- Loans and Comments --------------------------------------------------------------------------------------------
@@ -184,13 +239,24 @@ INSERT INTO AdditionalLanguages VALUES();
 -- not verified to work (needs insertion of copy first)
 INSERT INTO UserLoans
     SELECT DISTINCT
-        TO_NUMBER(USER_ID),
-        COPY,
+        TO_NUMBER(USER_ID) AS USER_ID,
+        SIGNATURE,
         TO_TIMESTAMP(LOANS.DATE_TIME, 'dd/mm/yyyy HH24:MI:SS') AS DATE_TIME,
-        TO_TIMESTAMP(LOANS.RETURN, 'dd/mm/yyyy HH24:MI:SS') AS RETURN,
-    FROM FSDB.LOANS;
+        TO_TIMESTAMP(LOANS.RETURN, 'dd/mm/yyyy HH24:MI:SS') AS RETURN
+    FROM FSDB.LOANS
+    WHERE USER_ID IN (SELECT USER_ID FROM USERS)
+;
 
-INSERT INTO LibraryLoans VALUES();
+-- not verified to work (needs insertion of copy first)
+INSERT INTO LibraryLoans
+    SELECT DISTINCT
+        PASSPORT,
+        SIGNATURE,
+        TO_TIMESTAMP(LOANS.DATE_TIME, 'dd/mm/yyyy HH24:MI:SS') AS DATE_TIME,
+        TO_TIMESTAMP(LOANS.RETURN, 'dd/mm/yyyy HH24:MI:SS') AS RETURN
+    FROM FSDB.LOANS
+    WHERE PASSPORT IN (SELECT CIF FROM LIBRARIES)
+;
 
 -- not verified to work (needs user loans first)
 INSERT INTO Comments
@@ -201,5 +267,5 @@ INSERT INTO Comments
         POST,
         TO_DATE(POST_DATE, 'dd-mm-yyyy'),
         TO_NUMBER(LIKES),
-        TO_NUMBER(DISLIKES),
+        TO_NUMBER(DISLIKES)
     FROM FSDB.LOANS;
