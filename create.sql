@@ -190,7 +190,7 @@ CREATE TABLE Editions (
     dimensions VARCHAR(50), 		
     physical_features VARCHAR(200), 
     attached_materials VARCHAR(200), 
-    -- notes VARCHAR(500), 
+    notes VARCHAR(500), 
     national_library_id VARCHAR(20) UNIQUE,
     URL VARCHAR(200) UNIQUE,
     CONSTRAINT fk_book_edition FOREIGN KEY (book_title, book_author) 
@@ -213,7 +213,7 @@ CREATE TABLE Copies (
     edition VARCHAR(20), 
     condition VARCHAR(16)
         CHECK (condition IN ('NEW', 'GOOD', 'WORN', 'VERY USED', 'DETERIORATED')),
-    notes VARCHAR(500), 
+    -- notes VARCHAR(500), 
     deregistration_date DATE,
     CONSTRAINT fk_edition_copy FOREIGN KEY (edition) 
         REFERENCES Editions(isbn)
@@ -244,11 +244,11 @@ CREATE TABLE UserLoans (
 );
 
 CREATE TABLE Comments (
-    loan_copy VARCHAR(5),
-    loan_date date,
-    return date,
+    loan_copy VARCHAR(20),
+    loan_date TIMESTAMP,
+    return TIMESTAMP,
     post VARCHAR(2000),
-    post_date date,
+    post_date TIMESTAMP,
     likes NUMBER CHECK (likes >= 0),
     dislikes NUMBER CHECK (dislikes >= 0),
     PRIMARY KEY (loan_copy, loan_date),

@@ -189,24 +189,27 @@ INSERT INTO Books
 -- easy: 1433 rows
 INSERT INTO Awards SELECT DISTINCT AWARDS, TITLE, MAIN_AUTHOR FROM FSDB.ACERVUS WHERE AWARDS IS NOT NULL;
 
--- : 205729 rows 
+-- xdd : 205729 rows 
 INSERT INTO Contributors
     SELECT DISTINCT *
-    FROM(
-        (SELECT DISTINCT
-            OTHER_AUTHORS,
-            TITLE,
-            MAIN_AUTHOR
-        FROM FSDB.ACERVUS
-        WHERE OTHER_AUTHORS IS NOT NULL)
-        UNION
-        (SELECT DISTINCT
-            MENTION_AUTHORS,
-            TITLE,
-            MAIN_AUTHOR
-        FROM FSDB.ACERVUS
-        WHERE MENTION_AUTHORS IS NOT NULL)
-      )
+    FROM (
+        (
+            SELECT DISTINCT
+                OTHER_AUTHORS,
+                TITLE,
+                MAIN_AUTHOR
+            FROM FSDB.ACERVUS
+            WHERE OTHER_AUTHORS IS NOT NULL
+        )
+        UNION (
+            SELECT DISTINCT
+                MENTION_AUTHORS,
+                TITLE,
+                MAIN_AUTHOR
+            FROM FSDB.ACERVUS
+            WHERE MENTION_AUTHORS IS NOT NULL
+        )
+    )
 ;
 
 -- : 6578 rows 
@@ -229,14 +232,14 @@ INSERT INTO Editions
         PUBLISHER,
         EXTENSION,
         SERIES,
-        NULL,
+        NULL,       -- legal deposit
         PUB_PLACE,
-        TO_DATE(PUB_DATE, 'yyyy'),
+        TO_DATE(PUB_DATE, 'yyyy') AS date_of_publication,
         COPYRIGHT,
         DIMENSIONS,
         PHYSICAL_FEATURES,
         ATTACHED_MATERIALS,
-        -- NOTES,
+        NOTES,
         NATIONAL_LIB_ID,
         URL
     FROM FSDB.ACERVUS
@@ -244,13 +247,13 @@ INSERT INTO Editions
 
 -- : ?? rows 
 -- not verified to work (needs insertion of edition first)
-INSERT INTO Copies (signature, edition, notes)
+INSERT INTO Copies
     SELECT DISTINCT
         SIGNATURE, 
         ISBN,
-        -- condition,
-        NOTES
-        -- deregistration_date
+        NULL, -- condition,
+        -- NOTES,
+        NULL -- deregistration_date
     FROM FSDB.ACERVUS
     WHERE SIGNATURE IS NOT NULL AND ISBN IS NOT NULL AND NOTES IS NOT NULL
 ;
@@ -288,10 +291,15 @@ INSERT INTO LibraryLoans
 INSERT INTO Comments
     SELECT DISTINCT
         SIGNATURE,
-        TO_DATE(DATE_TIME, 'dd-mm-yyyy'),
-        TO_DATE(RETURN, 'dd-mm-yyyy'),
+        TO_TIMESTAMP(DATE_TIME, 'dd/mm/yyyy HH24:MI:SS') AS DATE_TIME,
+        TO_TIMESTAMP(RETURN, 'dd/mm/yyyy HH24:MI:SS') AS RETURN,
         POST,
-        TO_DATE(POST_DATE, 'dd-mm-yyyy'),
+        CASE
+            WHEN VALIDATE_CONVERSION(POST_DATE AS TIMESTAMP, 'dd/mm/yyyy HH24:MI:SS') = 1 THEN
+                TO_DATE(POST_DATE, 'dd/mm/yyyy HH24:MI:SS')
+            ELSE
+                NULL
+        END AS POST_DATE,
         TO_NUMBER(LIKES),
         TO_NUMBER(DISLIKES)
     FROM FSDB.LOANS;
