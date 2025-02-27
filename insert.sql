@@ -222,7 +222,7 @@ INSERT INTO AdditionalLanguages SELECT DISTINCT OTHER_LANGUAGES, TITLE, MAIN_AUT
 
 
 -- : ?? rows 
--- no uniqueness
+-- BIG MAYBE 
 INSERT INTO Editions 
     SELECT DISTINCT 
     RESTO.ISBN,
@@ -241,7 +241,7 @@ INSERT INTO Editions
     ATTACHED_MATERIALS,
     NOTES,
     RESTO.NATIONAL_LIB_ID,
-    RESTO.URL
+    NEW_URL
     FROM(
             (SELECT DISTINCT
                 ISBN,
@@ -258,8 +258,7 @@ INSERT INTO Editions
                 PHYSICAL_FEATURES,
                 ATTACHED_MATERIALS,
                 NOTES,
-                NATIONAL_LIB_ID,
-                URL
+                NATIONAL_LIB_ID
             FROM FSDB.ACERVUS) RESTO
         INNER JOIN
             (SELECT DISTINCT 
@@ -267,16 +266,15 @@ INSERT INTO Editions
                 COUNT(NATIONAL_LIB_ID)
             FROM(SELECT DISTINCT ISBN, NATIONAL_LIB_ID FROM FSDB.ACERVUS)
             GROUP BY ISBN
-            HAVING COUNT(NATIONAL_LIB_ID)<2) FILTRO1
-        ON RESTO.ISBN = FILTRO1.ISBN
+            HAVING COUNT(NATIONAL_LIB_ID)<2) FILTRO
+        ON RESTO.ISBN = FILTRO.ISBN
         INNER JOIN
             (SELECT DISTINCT 
-                COUNT(ISBN), 
-                URL
+                ISBN,
+	              LISTAGG(TRIM(URL), ',') within group (order by URL) AS NEW_URL
             FROM(SELECT DISTINCT ISBN, URL FROM FSDB.ACERVUS)
-            GROUP BY URL
-            HAVING COUNT(ISBN)<2) FILTRO2
-        ON FILTRO2.URL = RESTO.URL
+            GROUP BY ISBN) LONG_URL
+        ON LONG_URL.ISBN = RESTO.ISBN
     )
 ;
 
