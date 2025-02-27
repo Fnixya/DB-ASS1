@@ -225,24 +225,59 @@ INSERT INTO AdditionalLanguages SELECT DISTINCT OTHER_LANGUAGES, TITLE, MAIN_AUT
 -- no uniqueness
 INSERT INTO Editions 
     SELECT DISTINCT 
-        ISBN,
-        TITLE,
-        MAIN_AUTHOR,
-        EDITION,
-        PUBLISHER,
-        EXTENSION,
-        SERIES,
-        NULL,       -- legal deposit
-        PUB_PLACE,
-        TO_DATE(PUB_DATE, 'yyyy') AS date_of_publication,
-        COPYRIGHT,
-        DIMENSIONS,
-        PHYSICAL_FEATURES,
-        ATTACHED_MATERIALS,
-        NOTES,
-        NATIONAL_LIB_ID,
-        URL
-    FROM FSDB.ACERVUS
+    RESTO.ISBN,
+    TITLE,
+    MAIN_AUTHOR,
+    EDITION,
+    PUBLISHER,
+    EXTENSION,
+    SERIES,
+    NULL,
+    PUB_PLACE,
+    date_of_publication,
+    COPYRIGHT,
+    DIMENSIONS,
+    PHYSICAL_FEATURES,
+    ATTACHED_MATERIALS,
+    NOTES,
+    RESTO.NATIONAL_LIB_ID,
+    RESTO.URL
+    FROM(
+            (SELECT DISTINCT 
+                ISBN, 
+                COUNT(NATIONAL_LIB_ID)
+            FROM(SELECT DISTINCT ISBN, NATIONAL_LIB_ID FROM FSDB.ACERVUS)
+            GROUP BY ISBN
+            HAVING COUNT(NATIONAL_LIB_ID)<2) FILTRO1
+        INNER JOIN
+            (SELECT DISTINCT 
+                ISBN, 
+                COUNT(URL)
+            FROM(SELECT DISTINCT ISBN, URL FROM FSDB.ACERVUS)
+            GROUP BY ISBN
+            HAVING COUNT(URL)<2) FILTRO2
+        ON FILTRO1.ISBN = FILTRO2.ISBN
+        INNER JOIN
+            (SELECT DISTINCT
+                ISBN,
+                TITLE,
+                MAIN_AUTHOR,
+                EDITION,
+                PUBLISHER,
+                EXTENSION,
+                SERIES,
+                PUB_PLACE,
+                TO_DATE(PUB_DATE, 'yyyy') AS date_of_publication,
+                COPYRIGHT,
+                DIMENSIONS,
+                PHYSICAL_FEATURES,
+                ATTACHED_MATERIALS,
+                NOTES,
+                NATIONAL_LIB_ID,
+                URL
+            FROM FSDB.ACERVUS) RESTO
+        ON FILTRO2.ISBN = RESTO.ISBN
+    )
 ;
 
 -- : ?? rows 
