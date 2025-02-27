@@ -37,7 +37,7 @@ CREATE TABLE Libraries (
     municipality_province VARCHAR(22),
     address VARCHAR(100),
     email VARCHAR(100),
-    phone_number NUMBER,
+    phone_number NUMBER CHECK (phone_number > 0 AND phone_number < 1000000000),
     CONSTRAINT fk_municipality_library FOREIGN KEY (municipality_name, municipality_province) 
         REFERENCES Municipalities(name, province)
         ON DELETE CASCADE
@@ -57,7 +57,7 @@ CREATE TABLE Bibus(
 CREATE TABLE Bibuseros(
     passport VARCHAR(20) PRIMARY KEY,
     fullname VARCHAR(80) NOT NULL,
-    phone_number NUMBER NOT NULL,
+    phone_number NUMBER NOT NULL CHECK (phone_number > 0 AND phone_number < 1000000000),
     address VARCHAR(100),
     email VARCHAR(100) NOT NULL,
     status VARCHAR(16) DEFAULT 'AVAILABLE',     -- available, under_inspection?, in_service 
@@ -88,7 +88,7 @@ CREATE TABLE dL_Route_Stops (
     municipality_name VARCHAR(64),
     municipality_province VARCHAR(64),
     address VARCHAR(100),
-    seq_order NUMBER,
+    seq_order NUMBER CHECK (seq_order > 0),
     stop_time TIMESTAMP,
     PRIMARY KEY (route_id, municipality_name, municipality_province, address),    
     CONSTRAINT fk_stop FOREIGN KEY (municipality_name, municipality_province, address) 
@@ -109,12 +109,14 @@ CREATE TABLE Users (
     surname2 VARCHAR(80),
     passport VARCHAR(20) UNIQUE,
     birthdate DATE,
-    phone_number NUMBER NOT NULL,
+    phone_number NUMBER NOT NULL CHECK (phone_number > 0 AND phone_number < 1000000000),
     municipality_name VARCHAR(50),
     municipality_province VARCHAR(22),
     address VARCHAR(150),
     email VARCHAR(100),
-    CONSTRAINT fk_municipality_users FOREIGN KEY (municipality_name, municipality_province) REFERENCES Municipalities(name, province)
+    CONSTRAINT fk_municipality_users FOREIGN KEY (municipality_name, municipality_province) 
+        REFERENCES Municipalities(name, province)
+        ON DELETE SET NULL
 );
 
 CREATE TABLE Sanctions (
