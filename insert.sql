@@ -243,21 +243,6 @@ INSERT INTO Editions
     RESTO.NATIONAL_LIB_ID,
     RESTO.URL
     FROM(
-            (SELECT DISTINCT 
-                ISBN, 
-                COUNT(NATIONAL_LIB_ID)
-            FROM(SELECT DISTINCT ISBN, NATIONAL_LIB_ID FROM FSDB.ACERVUS)
-            GROUP BY ISBN
-            HAVING COUNT(NATIONAL_LIB_ID)<2) FILTRO1
-        INNER JOIN
-            (SELECT DISTINCT 
-                ISBN, 
-                COUNT(URL)
-            FROM(SELECT DISTINCT ISBN, URL FROM FSDB.ACERVUS)
-            GROUP BY ISBN
-            HAVING COUNT(URL)<2) FILTRO2
-        ON FILTRO1.ISBN = FILTRO2.ISBN
-        INNER JOIN
             (SELECT DISTINCT
                 ISBN,
                 TITLE,
@@ -276,7 +261,22 @@ INSERT INTO Editions
                 NATIONAL_LIB_ID,
                 URL
             FROM FSDB.ACERVUS) RESTO
-        ON FILTRO2.ISBN = RESTO.ISBN
+        INNER JOIN
+            (SELECT DISTINCT 
+                ISBN, 
+                COUNT(NATIONAL_LIB_ID)
+            FROM(SELECT DISTINCT ISBN, NATIONAL_LIB_ID FROM FSDB.ACERVUS)
+            GROUP BY ISBN
+            HAVING COUNT(NATIONAL_LIB_ID)<2) FILTRO1
+        ON RESTO.ISBN = FILTRO1.ISBN
+        INNER JOIN
+            (SELECT DISTINCT 
+                COUNT(ISBN), 
+                URL
+            FROM(SELECT DISTINCT ISBN, URL FROM FSDB.ACERVUS)
+            GROUP BY URL
+            HAVING COUNT(ISBN)<2) FILTRO2
+        ON FILTRO2.URL = RESTO.URL
     )
 ;
 
