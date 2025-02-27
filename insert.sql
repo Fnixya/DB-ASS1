@@ -143,34 +143,50 @@ INSERT INTO Libraries (CIF, NAME, MUNICIPALITY_NAME, MUNICIPALITY_PROVINCE, ADDR
 ;
 
 -- ?? rows
--- works pichi picha
+-- works flawlessly and divinely
 INSERT INTO Books
-    SELECT 
+    SELECT DISTINCT 
 	      T1.TITLE, 
 	      T1.MAIN_AUTHOR, 
-	      LISTAGG(TRIM(T2.ORIGINAL_LANGUAGE), ',') within group (order by T2.ORIGINAL_LANGUAGE),
-	      LISTAGG(TRIM(T1.TOPIC), ',') within group (order by T1.TOPIC), 
+        T2.NEW_LANG,
+	      T1.NEW_TOPIC,
 	      T1.NEW_CONTENT
     FROM(
         (SELECT DISTINCT 
-	          TITLE, 
-	          MAIN_AUTHOR, 
-	          TOPIC, 
-		  MAX(CONTENT_NOTES) AS NEW_CONTENT 
+            TITLE,
+            MAIN_AUTHOR,
+            LISTAGG(TRIM(TOPIC), ',') within group (order by TOPIC) AS NEW_TOPIC,
+            NEW_CONTENT 
+        FROM(
+            SELECT DISTINCT
+	              TITLE,
+	              MAIN_AUTHOR,
+	              TOPIC,
+                MAX(CONTENT_NOTES) AS NEW_CONTENT 
             FROM FSDB.ACERVUS GROUP BY TITLE, MAIN_AUTHOR,TOPIC
+            )
+        GROUP BY TITLE, MAIN_AUTHOR, NEW_CONTENT
         ) T1 
         JOIN 
         (SELECT DISTINCT 
-	          TITLE, 
-	          MAIN_AUTHOR, 
-		  ORIGINAL_LANGUAGE 
-         FROM FSDB.ACERVUS
+	          TITLE,
+	          MAIN_AUTHOR,
+	          LISTAGG(TRIM(ORIGINAL_LANGUAGE), ',') within group (order by ORIGINAL_LANGUAGE) AS NEW_LANG
+        FROM(
+            SELECT DISTINCT
+                TITLE,
+                MAIN_AUTHOR,
+                ORIGINAL_LANGUAGE
+            FROM FSDB.ACERVUS)
+        GROUP BY TITLE, MAIN_AUTHOR
         ) T2 
         ON T1.TITLE=T2.TITLE AND T1.MAIN_AUTHOR=T2.MAIN_AUTHOR
-    ) GROUP BY T1.TITLE, T1.MAIN_AUTHOR, T1.NEW_CONTENT 
+    )
 ;
 
--- easy: ?? rows 
+
+
+-- easy: ?? rows
 INSERT INTO Awards SELECT DISTINCT AWARDS, TITLE, MAIN_AUTHOR FROM FSDB.ACERVUS WHERE AWARDS IS NOT NULL;
 
 -- : ?? rows 
