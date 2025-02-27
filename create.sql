@@ -25,13 +25,13 @@ DROP TABLE Municipalities;
 CREATE TABLE Municipalities (
     name VARCHAR(50),
     province VARCHAR(22),
-    population NUMBER NOT NULL,
+    population NUMBER DEFAULT 0 CHECK (population >= 0),
     PRIMARY KEY (name, province)
 );
 
 CREATE TABLE Libraries (
     cif VARCHAR(20) PRIMARY KEY,
-    name VARCHAR(80),
+    name VARCHAR(80) CHECK (name LIKE 'Biblioteca%'),
     date_of_foundation DATE,
     municipality_name VARCHAR(50),
     municipality_province VARCHAR(22),
@@ -49,7 +49,8 @@ CREATE TABLE Libraries (
 
 CREATE TABLE Bibus(
     license_plate VARCHAR(16) PRIMARY KEY,
-    status VARCHAR(16) DEFAULT 'AVAILABLE',     -- ?????
+    status VARCHAR(32) DEFAULT 'AVAILABLE' 
+        CHECK (status IN ('AVAILABLE', 'ASSIGNED', 'TECHNICAL INSPECTION')),     -- ?????
     last_itv TIMESTAMP NOT NULL,
     next_itv DATE NOT NULL
 );
@@ -60,7 +61,8 @@ CREATE TABLE Bibuseros(
     phone_number NUMBER NOT NULL CHECK (phone_number > 0 AND phone_number < 1000000000),
     address VARCHAR(100),
     email VARCHAR(100) NOT NULL,
-    status VARCHAR(16) DEFAULT 'AVAILABLE',     -- available, under_inspection?, in_service 
+    status VARCHAR(32) DEFAULT 'AVAILABLE' 
+        CHECK (status IN ('AVAILABLE', 'ASSIGNED', 'TECHNICAL INSPECTION')),     -- available, technical inspection, assigned 
     contract_start_date DATE NOT NULL,
     contract_end_date DATE,                    -- CAN BE NULL  
     birthdate DATE
@@ -71,8 +73,10 @@ CREATE TABLE Routes (
     day DATE NOT NULL,
     bibus VARCHAR(16),
     bibusero VARCHAR(20),    
-    CONSTRAINT fk_bibus FOREIGN KEY (bibus) REFERENCES Bibus(license_plate),
-    CONSTRAINT fk_bibusero FOREIGN KEY (bibusero) REFERENCES Bibuseros(passport)
+    CONSTRAINT fk_bibus FOREIGN KEY (bibus) 
+        REFERENCES Bibus(license_plate),
+    CONSTRAINT fk_bibusero FOREIGN KEY (bibusero) 
+        REFERENCES Bibuseros(passport)
 );
 
 CREATE TABLE Stops (
@@ -80,7 +84,8 @@ CREATE TABLE Stops (
     municipality_province VARCHAR(22),
     address VARCHAR(150),
     PRIMARY KEY (municipality_name, municipality_province, address),
-    CONSTRAINT fk_municipality_stops FOREIGN KEY (municipality_name, municipality_province) REFERENCES Municipalities(name, province)
+    CONSTRAINT fk_municipality_stops FOREIGN KEY (municipality_name, municipality_province) 
+        REFERENCES Municipalities(name, province)
 );
 
 CREATE TABLE dL_Route_Stops (
@@ -122,7 +127,7 @@ CREATE TABLE Users (
 CREATE TABLE Sanctions (
     user_id NUMBER,
     day DATE,
-    duration NUMBER,
+    duration NUMBER CHECK (duration >= 0),
     PRIMARY KEY (user_id, day),
     CONSTRAINT fk_user_sanctions FOREIGN KEY (user_id) 
         REFERENCES Users(user_id)
@@ -243,8 +248,8 @@ CREATE TABLE Comments (
     return date,
     post VARCHAR(2000),
     post_date date,
-    likes NUMBER,
-    dislikes NUMBER,
+    likes NUMBER CHECK (likes >= 0),
+    dislikes NUMBER CHECK (dislikes >= 0),
     PRIMARY KEY (loan_copy, loan_date),
     CONSTRAINT fk_loan FOREIGN KEY (loan_copy, loan_date) 
         REFERENCES UserLoans(copy, start_date)

@@ -1,6 +1,6 @@
 -- Municipality, Bibus, Bibuseros and Routes
 
--- good
+-- good: 14 rows
 INSERT INTO Bibus (license_plate, last_itv, next_itv)
     SELECT DISTINCT 
         MIN(PLATE), 
@@ -11,7 +11,7 @@ INSERT INTO Bibus (license_plate, last_itv, next_itv)
     GROUP BY PLATE
 ;
 
--- good
+-- good: 13 rows
 INSERT INTO Bibuseros (passport, fullname, phone_number, address, email, contract_start_date, contract_end_date, birthdate)
     SELECT DISTINCT 
         LIB_PASSPORT,
@@ -30,11 +30,11 @@ INSERT INTO Bibuseros (passport, fullname, phone_number, address, email, contrac
     FROM FSDB.BUSSTOPS
 ;
 
--- good
+-- good: 1365 rows
 INSERT INTO Municipalities SELECT DISTINCT town, province, to_number(population) FROM fsdb.busstops;
-
--- good
-INSERT INTO Routes 
+ 
+-- good: 150 rows
+INSERT INTO Routes
     SELECT DISTINCT 
         ROUTE_ID,
         TO_DATE(STOPDATE, 'dd-mm-yyyy'),
@@ -43,7 +43,7 @@ INSERT INTO Routes
     FROM FSDB.BUSSTOPS
 ;
 
--- good
+-- good: 1365 rows
 INSERT INTO Stops 
     SELECT DISTINCT 
         TOWN,
@@ -52,7 +52,7 @@ INSERT INTO Stops
     FROM FSDB.BUSSTOPS
 ;
 
--- good
+-- good: 1365 rows
 INSERT INTO dL_Route_Stops 
     SELECT DISTINCT 
         ROUTE_ID,
@@ -68,7 +68,7 @@ INSERT INTO dL_Route_Stops
 --- Users and Sanctions --------------------------------------------------------------------------------------------
 
 
--- good
+-- good: 2439 rows
 -- chooses the address ad town from the latest loan
 INSERT INTO USERS
     SELECT DISTINCT
@@ -108,7 +108,7 @@ INSERT INTO USERS
 
 -- Books and Editions --------------------------------------------------------------------------------------------
 
--- good
+-- good: 333 rows
 -- 353 LIBRARIES (1: FROM USERS WITH BIBLIOTECA IN NAME) AND 353 (2: FROM BUSSTOPS WITH HAS_LIBRARY='Y')
 -- 1. THERE ARE 20 LIBRARIES THAT DOESNT HAVE A REGISTERED TOWN IN DB.
 -- 2. THERE ARE 20 LIBRARIES THAT DOESNT CIF/PASSPORT.
@@ -142,6 +142,7 @@ INSERT INTO Libraries (CIF, NAME, MUNICIPALITY_NAME, MUNICIPALITY_PROVINCE, ADDR
     WHERE TOWN IN (SELECT NAME FROM MUNICIPALITIES) AND PASSPORT IS NOT NULL
 ;
 
+-- ?? rows
 -- works pichi picha
 INSERT INTO Books
     SELECT 
@@ -169,9 +170,10 @@ INSERT INTO Books
     ) GROUP BY T1.TITLE, T1.MAIN_AUTHOR, T1.NEW_CONTENT 
 ;
 
--- easy
+-- easy: ?? rows 
 INSERT INTO Awards SELECT DISTINCT AWARDS, TITLE, MAIN_AUTHOR FROM FSDB.ACERVUS WHERE AWARDS IS NOT NULL;
 
+-- : ?? rows 
 INSERT INTO Contributors
     SELECT DISTINCT *
     FROM(
@@ -191,9 +193,10 @@ INSERT INTO Contributors
       )
 ;
 
-
+-- : ?? rows 
 INSERT INTO AlternativeTitles SELECT DISTINCT ALT_TITLE, TITLE, MAIN_AUTHOR FROM FSDB.ACERVUS WHERE ALT_TITLE IS NOT NULL;
 
+-- : ?? rows 
 -- no uniqueness
 INSERT INTO Editions 
     SELECT DISTINCT 
@@ -217,6 +220,7 @@ INSERT INTO Editions
     FROM FSDB.ACERVUS
 ;
 
+-- : ?? rows 
 -- not verified to work (needs insertion of edition first)
 INSERT INTO Copies (signature, edition, condition, comments)
     SELECT DISTINCT
@@ -229,6 +233,7 @@ INSERT INTO Copies (signature, edition, condition, comments)
     WHERE SIGNATURE IS NOT NULL AND ISBN IS NOT NULL AND COMMENTS IS NOT NULL
 ;
 
+-- : ?? rows 
 -- We don't check with main language because there is no row where main_language = other_languages
 INSERT INTO AdditionalLanguages SELECT DISTINCT OTHER_LANGUAGES, TITLE, MAIN_AUTHOR FROM FSDB.ACERVUS WHERE OTHER_LANGUAGES IS NOT NULL;
 
@@ -236,6 +241,7 @@ INSERT INTO AdditionalLanguages SELECT DISTINCT OTHER_LANGUAGES, TITLE, MAIN_AUT
 -- Loans and Comments --------------------------------------------------------------------------------------------
 
 
+-- : ?? rows 
 -- not verified to work (needs insertion of copy first)
 INSERT INTO UserLoans
     SELECT DISTINCT
@@ -247,6 +253,7 @@ INSERT INTO UserLoans
     WHERE USER_ID IN (SELECT USER_ID FROM USERS)
 ;
 
+-- : ?? rows 
 -- not verified to work (needs insertion of copy first)
 INSERT INTO LibraryLoans
     SELECT DISTINCT
@@ -258,6 +265,7 @@ INSERT INTO LibraryLoans
     WHERE PASSPORT IN (SELECT CIF FROM LIBRARIES)
 ;
 
+-- : ?? rows 
 -- not verified to work (needs user loans first)
 INSERT INTO Comments
     SELECT DISTINCT
