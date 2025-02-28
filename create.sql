@@ -221,7 +221,7 @@ CREATE TABLE Copies (
 
 CREATE TABLE LibraryLoans (
     library VARCHAR(20),
-    copy VARCHAR(5),
+    copy VARCHAR(20),
     start_date date,
     return_date date,
     PRIMARY KEY (copy, start_date),
@@ -233,7 +233,7 @@ CREATE TABLE LibraryLoans (
 
 CREATE TABLE UserLoans (
     user_id NUMBER,
-    copy VARCHAR(5),
+    copy VARCHAR(20),
     start_date DATE,
     return_date DATE,
     PRIMARY KEY (copy, start_date),
