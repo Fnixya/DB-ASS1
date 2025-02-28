@@ -205,58 +205,34 @@ INSERT INTO AdditionalLanguages SELECT DISTINCT OTHER_LANGUAGES, TITLE, MAIN_AUT
 
 -- : 240465 rows 
 INSERT INTO Editions 
-    SELECT DISTINCT 
-    RESTO.ISBN,
-    TITLE,
-    MAIN_AUTHOR,
-    EDITION,
-    PUBLISHER,
-    EXTENSION,
-    SERIES,
-    NULL,               -- legal deposit
-    PUB_PLACE,
-    date_of_publication,
-    COPYRIGHT,
-    DIMENSIONS,
-    PHYSICAL_FEATURES,
-    ATTACHED_MATERIALS,
-    NOTES,
-    RESTO.NATIONAL_LIB_ID,
-    NEW_URL
-    FROM (
-            (SELECT DISTINCT
-                ISBN,
-                TITLE,
-                MAIN_AUTHOR,
-                EDITION,
-                PUBLISHER,
-                EXTENSION,
-                SERIES,
-                PUB_PLACE,
-                TO_DATE(PUB_DATE, 'yyyy') AS date_of_publication,
-                COPYRIGHT,
-                DIMENSIONS,
-                PHYSICAL_FEATURES,
-                ATTACHED_MATERIALS,
-                NOTES,
-                NATIONAL_LIB_ID
-            FROM FSDB.ACERVUS) RESTO
-        INNER JOIN
-            (SELECT DISTINCT 
-                ISBN, 
-                COUNT(NATIONAL_LIB_ID)
-            FROM(SELECT DISTINCT ISBN, NATIONAL_LIB_ID FROM FSDB.ACERVUS)
-            GROUP BY ISBN
-            HAVING COUNT(NATIONAL_LIB_ID)<2) FILTRO
-        ON RESTO.ISBN = FILTRO.ISBN
-        INNER JOIN
-            (SELECT DISTINCT 
-                ISBN,
-	              LISTAGG(TRIM(URL), ',') within group (order by URL) AS NEW_URL
-            FROM(SELECT DISTINCT ISBN, URL FROM FSDB.ACERVUS)
-            GROUP BY ISBN) LONG_URL
-        ON LONG_URL.ISBN = RESTO.ISBN
-    )
+    SELECT DISTINCT
+        FILTRO.ISBN,
+        ACERVUS.TITLE,
+        ACERVUS.MAIN_AUTHOR,
+        ACERVUS.EDITION,
+        ACERVUS.PUBLISHER,
+        ACERVUS.EXTENSION,
+        ACERVUS.SERIES,
+        NULL,
+        ACERVUS.PUB_PLACE,
+        TO_DATE(ACERVUS.PUB_DATE, 'yyyy') AS date_of_publication,
+        ACERVUS.COPYRIGHT,
+        ACERVUS.DIMENSIONS,
+        ACERVUS.PHYSICAL_FEATURES,
+        ACERVUS.ATTACHED_MATERIALS,
+        ACERVUS.NOTES,
+        ACERVUS.NATIONAL_LIB_ID,
+        ACERVUS.URL
+    FROM FSDB.ACERVUS ACERVUS
+    INNER JOIN (
+        SELECT DISTINCT 
+            ISBN, 
+            COUNT(NATIONAL_LIB_ID)
+        FROM (SELECT DISTINCT ISBN, NATIONAL_LIB_ID FROM FSDB.ACERVUS)
+        GROUP BY ISBN
+        HAVING COUNT(NATIONAL_LIB_ID) < 2
+    ) FILTRO
+    ON ACERVUS.ISBN = FILTRO.ISBN
 ;
 
 -- good: 241236 rows 
