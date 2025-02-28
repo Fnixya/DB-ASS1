@@ -4,7 +4,7 @@
 INSERT INTO Bibus (license_plate, last_itv, next_itv)
     SELECT DISTINCT 
         MIN(PLATE), 
-        MAX(TO_TIMESTAMP(LAST_ITV, 'dd.mm.yyyy//HH24:MI:SS')), 
+        MAX(TO_DATE(LAST_ITV, 'dd.mm.yyyy//HH24:MI:SS')), 
         MIN(TO_DATE(NEXT_ITV, 'dd.mm.yyyy'))
     FROM FSDB.BUSSTOPS
     WHERE plate IS NOT NULL AND last_itv IS NOT NULL AND next_itv IS NOT NULL
@@ -60,7 +60,7 @@ INSERT INTO dL_Route_Stops
         PROVINCE,
         ADDRESS,
         ROW_NUMBER() OVER (PARTITION BY ROUTE_ID ORDER BY STOPTIME) AS SEQ_ORDER,
-        TO_TIMESTAMP(STOPTIME, 'HH24:MI:SS') AS STOPTIME
+        TO_DATE(STOPTIME, 'HH24:MI:SS') AS STOPTIME
     FROM FSDB.BUSSTOPS
 ;
 
@@ -81,19 +81,14 @@ INSERT INTO USERS
             LOANS.SURNAME1, 
             LOANS.SURNAME2,
             LOANS.PASSPORT, 
-            CASE
-                WHEN VALIDATE_CONVERSION(LOANS.BIRTHDATE AS DATE, 'dd-mm-yyyy') = 1 THEN
-                    TO_DATE(LOANS.BIRTHDATE, 'dd-mm-yyyy')
-                ELSE
-                    NULL
-            END AS BIRTHDATE,
+            TO_DATE(LOANS.BIRTHDATE, 'dd-mm-yyyy') AS BIRTHDATE,
             TO_NUMBER(LOANS.PHONE) AS PHONE,
             LOANS.TOWN,
             BUSSTOPS.PROVINCE,
             LOANS.ADDRESS,
             LOANS.EMAIL,
-            TO_TIMESTAMP(LOANS.DATE_TIME, 'dd/mm/yyyy HH24:MI:SS') AS DATE_TIME,
-            TO_TIMESTAMP(LOANS.RETURN, 'dd/mm/yyyy HH24:MI:SS') AS RETURN,
+            TO_DATE(LOANS.DATE_TIME, 'dd/mm/yyyy HH24:MI:SS') AS DATE_TIME,
+            TO_DATE(LOANS.RETURN, 'dd/mm/yyyy HH24:MI:SS') AS RETURN,
             ROW_NUMBER() OVER (PARTITION BY LOANS.USER_ID ORDER BY RETURN ASC) AS RECENCY
         FROM FSDB.LOANS LOANS
         JOIN FSDB.BUSSTOPS BUSSTOPS
@@ -114,43 +109,30 @@ INSERT INTO USERS
 -- 2. THERE ARE 20 LIBRARIES THAT DOESNT CIF/PASSPORT.
 -- IN BOTH CASES WE INSERT ONLY 333 LIBRARIES 
 INSERT INTO Libraries (CIF, NAME, MUNICIPALITY_NAME, MUNICIPALITY_PROVINCE, ADDRESS, EMAIL, phone_number)
-    SELECT 
-        DISTINCT PASSPORT, NAME, TOWN, PROVINCE, ADDRESS, EMAIL, PHONE 
-    FROM 
-        (
-            SELECT 
-                LOANS.PASSPORT,
-                LOANS.NAME,
-                BUSSTOPS.TOWN,
-                BUSSTOPS.PROVINCE,
-                BUSSTOPS.ADDRESS,
-                LOANS.EMAIL,
-                LOANS.PHONE
-            FROM 
-            (
-                SELECT DISTINCT
-                    TOWN,
-                    PROVINCE,
-                    ADDRESS
-                FROM FSDB.BUSSTOPS
-                WHERE HAS_LIBRARY='Y'
-            ) BUSSTOPS
-            LEFT JOIN FSDB.LOANS LOANS
-            ON BUSSTOPS.TOWN=LOANS.TOWN
-            WHERE BUSSTOPS.TOWN IS NOT NULL
-        )
-    WHERE TOWN IN (SELECT NAME FROM MUNICIPALITIES) AND PASSPORT IS NOT NULL
-;
+    SELECT DISTINCT 
+        LOANS.PASSPORT,
+        LOANS.NAME,
+        BUSSTOPS.TOWN,
+        BUSSTOPS.PROVINCE,
+        BUSSTOPS.ADDRESS,
+        LOANS.EMAIL,
+        LOANS.PHONE
+    FROM FSDB.BUSSTOPS BUSSTOPS
+    LEFT JOIN FSDB.LOANS LOANS
+    ON BUSSTOPS.TOWN=LOANS.TOWN
+    WHERE BUSSTOPS.TOWN IN (SELECT NAME FROM MUNICIPALITIES) 
+        AND BUSSTOPS.HAS_LIBRARY='Y'
+        AND LOANS.PASSPORT IS NOT NULL;
 
 -- 181435 rows
 -- works flawlessly and divinely
 INSERT INTO Books
     SELECT DISTINCT 
-	      T1.TITLE, 
-	      T1.MAIN_AUTHOR, 
+        T1.TITLE, 
+        T1.MAIN_AUTHOR, 
         T2.NEW_LANG,
-	      T1.NEW_TOPIC,
-	      T1.NEW_CONTENT
+        T1.NEW_TOPIC,
+        T1.NEW_CONTENT
     FROM(
         (SELECT DISTINCT 
             TITLE,
@@ -231,7 +213,7 @@ INSERT INTO Editions
     PUBLISHER,
     EXTENSION,
     SERIES,
-    NULL,
+    NULL,               -- legal deposit
     PUB_PLACE,
     date_of_publication,
     COPYRIGHT,
@@ -241,7 +223,7 @@ INSERT INTO Editions
     NOTES,
     RESTO.NATIONAL_LIB_ID,
     NEW_URL
-    FROM(
+    FROM (
             (SELECT DISTINCT
                 ISBN,
                 TITLE,
@@ -282,8 +264,8 @@ INSERT INTO Copies
     SELECT DISTINCT
         SIGNATURE, 
         ISBN,
-        NULL,
-        NULL
+        NULL,           -- condition
+        NULL            -- deregistration_date
     FROM FSDB.ACERVUS
     WHERE SIGNATURE IS NOT NULL AND ISBN IN (SELECT ISBN FROM EDITIONS)
 ;
@@ -296,67 +278,39 @@ INSERT INTO Copies
 -- not verified to work (needs insertion of copy first)
 INSERT INTO UserLoans
     SELECT DISTINCT
-        TOTAL.NEW_USER_ID,
-        TOTAL.SIGNATURE,
-        TOTAL.DATE_TIME,
-        TOTAL.RETURN
-    FROM (
-        (SELECT DISTINCT 
-            TO_NUMBER(USER_ID) AS NEW_USER_ID,
-            SIGNATURE,
-            TO_TIMESTAMP(LOANS.DATE_TIME, 'dd/mm/yyyy HH24:MI:SS') AS DATE_TIME,
-            TO_TIMESTAMP(LOANS.RETURN, 'dd/mm/yyyy HH24:MI:SS') AS RETURN
-        FROM FSDB.LOANS) TOTAL
-        INNER JOIN
-        (SELECT USER_ID FROM USERS) FILTRO1
-        ON TOTAL.NEW_USER_ID=FILTRO1.USER_ID
-        INNER JOIN
-        (SELECT SIGNATURE FROM COPIES) FILTRO2
-        ON TOTAL.SIGNATURE=FILTRO2.SIGNATURE
-    )
+        TO_NUMBER(USER_ID) AS USER_ID,
+        SIGNATURE,
+        TO_TIMESTAMP(LOANS.DATE_TIME, 'dd/mm/yyyy HH24:MI:SS') AS DATE_TIME,
+        TO_TIMESTAMP(LOANS.RETURN, 'dd/mm/yyyy HH24:MI:SS') AS RETURN
+    FROM FSDB.LOANS
     WHERE USER_ID IN (SELECT USER_ID FROM USERS)
+        AND SIGNATURE IN (SELECT SIGNATURE FROM COPIES)
 ;
 
--- : 21178 rows 
--- not verified to work (needs insertion of copy first)
+-- good : 21178 rows 
 INSERT INTO LibraryLoans
     SELECT DISTINCT
-        TOTAL.PASSPORT,
-        TOTAL.SIGNATURE,
-        TOTAL.DATE_TIME,
-        TOTAL.RETURN
-    FROM (
-        (SELECT DISTINCT 
-            PASSPORT,
-            SIGNATURE,
-            TO_TIMESTAMP(LOANS.DATE_TIME, 'dd/mm/yyyy HH24:MI:SS') AS DATE_TIME,
-            TO_TIMESTAMP(LOANS.RETURN, 'dd/mm/yyyy HH24:MI:SS') AS RETURN
-        FROM FSDB.LOANS) TOTAL
-        INNER JOIN
-        (SELECT CIF FROM LIBRARIES) FILTRO1
-        ON TOTAL.PASSPORT=FILTRO1.CIF
-        INNER JOIN
-        (SELECT SIGNATURE FROM COPIES) FILTRO2
-        ON TOTAL.SIGNATURE=FILTRO2.SIGNATURE
-    )
-    WHERE TOTAL.PASSPORT IN (SELECT CIF FROM LIBRARIES)
+        PASSPORT,
+        SIGNATURE,
+        TO_TIMESTAMP(LOANS.DATE_TIME, 'dd/mm/yyyy HH24:MI:SS') AS DATE_TIME,
+        TO_TIMESTAMP(LOANS.RETURN, 'dd/mm/yyyy HH24:MI:SS') AS RETURN
+    FROM FSDB.LOANS
+    WHERE PASSPORT IN (SELECT CIF FROM LIBRARIES)
+        AND SIGNATURE IN (SELECT SIGNATURE FROM COPIES)
 ;
 
--- : ?? rows 
--- not verified to work (needs user loans first)
+-- good : 938 rows 
 INSERT INTO Comments
     SELECT DISTINCT
-        SIGNATURE,
-        TO_DATE(DATE_TIME, 'dd/mm/yyyy HH24:MI:SS') AS DATE_TIME,
-        TO_DATE(RETURN, 'dd/mm/yyyy HH24:MI:SS') AS RETURN,
-        POST,
-        CASE
-            WHEN VALIDATE_CONVERSION(POST_DATE AS DATE, 'dd/mm/yyyy HH24:MI:SS') = 1 THEN
-                TO_DATE(POST_DATE, 'dd/mm/yyyy HH24:MI:SS')
-            ELSE
-                NULL
-        END AS POST_DATE,
-        TO_NUMBER(LIKES),
-        TO_NUMBER(DISLIKES)
-    FROM FSDB.LOANS
-    WHERE SIGNATURE IN (SELECT SIGNATURE FROM USERLOANS);
+        UL.COPY,
+        UL.START_DATE,
+        UL.RETURN_DATE,
+        L.POST,
+        TO_DATE(L.POST_DATE, 'dd/mm/yyyy HH24:MI:SS') AS POST_DATE,
+        TO_NUMBER(L.LIKES) AS LIKES,
+        TO_NUMBER(L.DISLIKES) AS DISLIKES
+    FROM USERLOANS UL
+    LEFT JOIN FSDB.LOANS L
+    ON UL.COPY = L.SIGNATURE AND UL.START_DATE = TO_DATE(L.DATE_TIME, 'dd/mm/yyyy HH24:MI:SS')
+    WHERE UL.START_DATE IS NOT NULL AND L.POST IS NOT NULL
+;
