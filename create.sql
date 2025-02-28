@@ -37,7 +37,7 @@ CREATE TABLE Libraries (
     municipality_province VARCHAR(22),
     address VARCHAR(100),
     email VARCHAR(100),
-    phone_number NUMBER CHECK (phone_number > 0 AND phone_number < 1000000000),
+    phone_number NUMBER CHECK (phone_number > 99999999 AND phone_number < 1000000000),
     CONSTRAINT fk_municipality_library FOREIGN KEY (municipality_name, municipality_province) 
         REFERENCES Municipalities(name, province)
         ON DELETE CASCADE
@@ -58,7 +58,7 @@ CREATE TABLE Bibus(
 CREATE TABLE Bibuseros(
     passport VARCHAR(20) PRIMARY KEY,
     fullname VARCHAR(80) NOT NULL,
-    phone_number NUMBER NOT NULL CHECK (phone_number > 0 AND phone_number < 1000000000),
+    phone_number NUMBER NOT NULL CHECK (phone_number > 99999999 AND phone_number < 1000000000),
     address VARCHAR(100),
     email VARCHAR(100) NOT NULL,
     status VARCHAR(32) DEFAULT 'AVAILABLE' 
@@ -114,7 +114,7 @@ CREATE TABLE Users (
     surname2 VARCHAR(80),
     passport VARCHAR(20) UNIQUE,
     birthdate DATE,
-    phone_number NUMBER NOT NULL CHECK (phone_number > 0 AND phone_number < 1000000000),
+    phone_number NUMBER NOT NULL CHECK (phone_number > 99999999 AND phone_number < 1000000000),
     municipality_name VARCHAR(50),
     municipality_province VARCHAR(22),
     address VARCHAR(150),
@@ -245,8 +245,8 @@ CREATE TABLE UserLoans (
 
 CREATE TABLE Comments (
     loan_copy VARCHAR(20),
-    loan_date TIMESTAMP,
-    return TIMESTAMP,
+    loan_date DATE,
+    return DATE,
     post VARCHAR(2000),
     post_date TIMESTAMP,
     likes NUMBER CHECK (likes >= 0),

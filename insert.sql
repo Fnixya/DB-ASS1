@@ -221,7 +221,7 @@ INSERT INTO AlternativeTitles SELECT DISTINCT ALT_TITLE, TITLE, MAIN_AUTHOR FROM
 INSERT INTO AdditionalLanguages SELECT DISTINCT OTHER_LANGUAGES, TITLE, MAIN_AUTHOR FROM FSDB.ACERVUS WHERE OTHER_LANGUAGES IS NOT NULL;
 
 
--- : ?? rows 
+-- : 241236 rows 
 -- no uniqueness
 INSERT INTO Editions 
     SELECT DISTINCT 
@@ -280,7 +280,7 @@ INSERT INTO Editions
     )
 ;
 
--- : ?? rows 
+-- : 240465 rows 
 -- not verified to work (needs insertion of edition first)
 INSERT INTO Copies
     SELECT DISTINCT
@@ -326,11 +326,11 @@ INSERT INTO LibraryLoans
 INSERT INTO Comments
     SELECT DISTINCT
         SIGNATURE,
-        TO_TIMESTAMP(DATE_TIME, 'dd/mm/yyyy HH24:MI:SS') AS DATE_TIME,
-        TO_TIMESTAMP(RETURN, 'dd/mm/yyyy HH24:MI:SS') AS RETURN,
+        TO_DATE(DATE_TIME, 'dd/mm/yyyy HH24:MI:SS') AS DATE_TIME,
+        TO_DATE(RETURN, 'dd/mm/yyyy HH24:MI:SS') AS RETURN,
         POST,
         CASE
-            WHEN VALIDATE_CONVERSION(POST_DATE AS TIMESTAMP, 'dd/mm/yyyy HH24:MI:SS') = 1 THEN
+            WHEN VALIDATE_CONVERSION(POST_DATE AS DATE, 'dd/mm/yyyy HH24:MI:SS') = 1 THEN
                 TO_DATE(POST_DATE, 'dd/mm/yyyy HH24:MI:SS')
             ELSE
                 NULL
