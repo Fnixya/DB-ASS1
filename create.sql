@@ -113,11 +113,11 @@ CREATE TABLE Users (
     surname1 VARCHAR(80) NOT NULL,
     surname2 VARCHAR(80),
     passport VARCHAR(20) UNIQUE,
-    birthdate DATE,
+    birthdate DATE NOT NULL,
     phone_number NUMBER NOT NULL CHECK (phone_number > 99999999 AND phone_number < 1000000000),
     municipality_name VARCHAR(50),
     municipality_province VARCHAR(22),
-    address VARCHAR(150),
+    address VARCHAR(150) NOT NULL,
     email VARCHAR(100),
     CONSTRAINT fk_municipality_users FOREIGN KEY (municipality_name, municipality_province) 
         REFERENCES Municipalities(name, province)
