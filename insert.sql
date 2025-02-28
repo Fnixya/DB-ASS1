@@ -292,7 +292,7 @@ INSERT INTO Copies
 -- Loans and Comments --------------------------------------------------------------------------------------------
 
 
--- : ?? rows 
+-- : 4037 rows 
 -- not verified to work (needs insertion of copy first)
 INSERT INTO UserLoans
     SELECT DISTINCT
@@ -317,7 +317,7 @@ INSERT INTO UserLoans
     WHERE USER_ID IN (SELECT USER_ID FROM USERS)
 ;
 
--- : ?? rows 
+-- : 21178 rows 
 -- not verified to work (needs insertion of copy first)
 INSERT INTO LibraryLoans
     SELECT DISTINCT
@@ -339,7 +339,7 @@ INSERT INTO LibraryLoans
         (SELECT SIGNATURE FROM COPIES) FILTRO2
         ON TOTAL.SIGNATURE=FILTRO2.SIGNATURE
     )
-    WHERE USER_ID IN (SELECT USER_ID FROM USERS)
+    WHERE TOTAL.PASSPORT IN (SELECT CIF FROM LIBRARIES)
 ;
 
 -- : ?? rows 
@@ -358,4 +358,5 @@ INSERT INTO Comments
         END AS POST_DATE,
         TO_NUMBER(LIKES),
         TO_NUMBER(DISLIKES)
-    FROM FSDB.LOANS;
+    FROM FSDB.LOANS
+    WHERE SIGNATURE IN (SELECT SIGNATURE FROM USERLOANS);
