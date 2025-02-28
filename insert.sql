@@ -132,7 +132,8 @@ INSERT INTO Books
         T1.MAIN_AUTHOR, 
         T2.NEW_LANG,
         T1.NEW_TOPIC,
-        T1.NEW_CONTENT
+        T1.NEW_CONTENT,
+        NULL                    -- number of publications
     FROM(
         (SELECT DISTINCT 
             TITLE,

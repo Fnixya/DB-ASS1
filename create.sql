@@ -50,7 +50,7 @@ CREATE TABLE Libraries (
 CREATE TABLE Bibus(
     license_plate VARCHAR(16) PRIMARY KEY,
     status VARCHAR(32) DEFAULT 'AVAILABLE' 
-        CHECK (status IN ('AVAILABLE', 'ASSIGNED', 'TECHNICAL INSPECTION')),     -- ?????
+        CHECK (status IN ('AVAILABLE', 'ASSIGNED', 'TECHNICAL INSPECTION')),     -- 
     last_itv DATE NOT NULL,
     next_itv DATE NOT NULL
 );
@@ -82,7 +82,7 @@ CREATE TABLE Routes (
 CREATE TABLE Stops (
     municipality_name VARCHAR(50),
     municipality_province VARCHAR(22),
-    address VARCHAR(150),
+    address VARCHAR(150) NOT NULL,
     PRIMARY KEY (municipality_name, municipality_province, address),
     CONSTRAINT fk_municipality_stops FOREIGN KEY (municipality_name, municipality_province) 
         REFERENCES Municipalities(name, province)
@@ -92,7 +92,7 @@ CREATE TABLE dL_Route_Stops (
     route_id VARCHAR(5),
     municipality_name VARCHAR(64),
     municipality_province VARCHAR(64),
-    address VARCHAR(100),
+    address VARCHAR(100) NOT NULL,
     seq_order NUMBER CHECK (seq_order > 0),
     stop_time DATE,
     PRIMARY KEY (route_id, municipality_name, municipality_province, address),    
@@ -126,8 +126,8 @@ CREATE TABLE Users (
 
 CREATE TABLE Sanctions (
     user_id NUMBER,
-    day DATE,
-    duration NUMBER CHECK (duration >= 0),
+    day DATE NOT NULL,
+    duration NUMBER NOT NULL CHECK (duration >= 0),
     PRIMARY KEY (user_id, day),
     CONSTRAINT fk_user_sanctions FOREIGN KEY (user_id) 
         REFERENCES Users(user_id)
@@ -139,9 +139,8 @@ CREATE TABLE Books (
     main_author VARCHAR(100),
     original_language VARCHAR(50), 
     topic VARCHAR(550),
-    -- subject VARCHAR(100),
     content_notes VARCHAR(100),
-    -- number_of_publications NUMBER,
+    number_of_publications NUMBER,
     PRIMARY KEY (title, main_author)
 );
 
@@ -185,12 +184,12 @@ CREATE TABLE Editions (
     series VARCHAR(50), 
     legal_deposit VARCHAR(200), 
     place_of_publication VARCHAR(50), 
-    date_of_publication DATE, 
-    copyright VARCHAR(20), 
-    dimensions VARCHAR(50), 		
+    date_of_publication DATE,
+    copyright VARCHAR(20),
+    dimensions VARCHAR(50),		
     physical_features VARCHAR(200), 
     attached_materials VARCHAR(200), 
-    notes VARCHAR(500), 
+    notes VARCHAR(500),
     national_library_id VARCHAR(20) UNIQUE,
     URL VARCHAR(200),
     CONSTRAINT fk_book_edition FOREIGN KEY (book_title, book_author) 
@@ -247,10 +246,10 @@ CREATE TABLE Comments (
     loan_copy VARCHAR(20),
     loan_date DATE,
     return DATE,
-    post VARCHAR(2000),
-    post_date DATE,
-    likes NUMBER CHECK (likes >= 0),
-    dislikes NUMBER CHECK (dislikes >= 0),
+    post VARCHAR(2000) NOT NULL,
+    post_date DATE NOT NULL,
+    likes NUMBER DEFAULT 0 CHECK (likes >= 0),
+    dislikes NUMBER DEFAULT 0 CHECK (dislikes >= 0),
     PRIMARY KEY (loan_copy, loan_date),
     CONSTRAINT fk_loan FOREIGN KEY (loan_copy, loan_date) 
         REFERENCES UserLoans(copy, start_date)
