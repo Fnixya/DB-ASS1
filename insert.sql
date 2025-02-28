@@ -284,9 +284,8 @@ INSERT INTO Copies
     SELECT DISTINCT
         SIGNATURE, 
         ISBN,
-        NULL, -- condition,
-        -- NOTES,
-        NULL -- deregistration_date
+        NULL,
+        NULL
     FROM FSDB.ACERVUS
     WHERE SIGNATURE IS NOT NULL AND ISBN IS NOT NULL AND NOTES IS NOT NULL
 ;
