@@ -221,8 +221,7 @@ INSERT INTO AlternativeTitles SELECT DISTINCT ALT_TITLE, TITLE, MAIN_AUTHOR FROM
 INSERT INTO AdditionalLanguages SELECT DISTINCT OTHER_LANGUAGES, TITLE, MAIN_AUTHOR FROM FSDB.ACERVUS WHERE OTHER_LANGUAGES IS NOT NULL;
 
 
--- : 241236 rows 
--- no uniqueness
+-- : 240465 rows 
 INSERT INTO Editions 
     SELECT DISTINCT 
     RESTO.ISBN,
@@ -241,7 +240,7 @@ INSERT INTO Editions
     ATTACHED_MATERIALS,
     NOTES,
     RESTO.NATIONAL_LIB_ID,
-    RESTO.URL
+    NEW_URL
     FROM(
             (SELECT DISTINCT
                 ISBN,
@@ -258,8 +257,7 @@ INSERT INTO Editions
                 PHYSICAL_FEATURES,
                 ATTACHED_MATERIALS,
                 NOTES,
-                NATIONAL_LIB_ID,
-                URL
+                NATIONAL_LIB_ID
             FROM FSDB.ACERVUS) RESTO
         INNER JOIN
             (SELECT DISTINCT 
@@ -267,30 +265,27 @@ INSERT INTO Editions
                 COUNT(NATIONAL_LIB_ID)
             FROM(SELECT DISTINCT ISBN, NATIONAL_LIB_ID FROM FSDB.ACERVUS)
             GROUP BY ISBN
-            HAVING COUNT(NATIONAL_LIB_ID)<2) FILTRO1
-        ON RESTO.ISBN = FILTRO1.ISBN
+            HAVING COUNT(NATIONAL_LIB_ID)<2) FILTRO
+        ON RESTO.ISBN = FILTRO.ISBN
         INNER JOIN
             (SELECT DISTINCT 
-                COUNT(ISBN), 
-                URL
+                ISBN,
+	              LISTAGG(TRIM(URL), ',') within group (order by URL) AS NEW_URL
             FROM(SELECT DISTINCT ISBN, URL FROM FSDB.ACERVUS)
-            GROUP BY URL
-            HAVING COUNT(ISBN)<2) FILTRO2
-        ON FILTRO2.URL = RESTO.URL
+            GROUP BY ISBN) LONG_URL
+        ON LONG_URL.ISBN = RESTO.ISBN
     )
 ;
 
--- : 240465 rows 
--- not verified to work (needs insertion of edition first)
+-- good: 241236 rows 
 INSERT INTO Copies
     SELECT DISTINCT
         SIGNATURE, 
         ISBN,
-        NULL, -- condition,
-        -- NOTES,
-        NULL -- deregistration_date
+        NULL,
+        NULL
     FROM FSDB.ACERVUS
-    WHERE SIGNATURE IS NOT NULL AND ISBN IS NOT NULL AND NOTES IS NOT NULL
+    WHERE SIGNATURE IS NOT NULL AND ISBN IN (SELECT ISBN FROM EDITIONS)
 ;
 
 

@@ -51,7 +51,7 @@ CREATE TABLE Bibus(
     license_plate VARCHAR(16) PRIMARY KEY,
     status VARCHAR(32) DEFAULT 'AVAILABLE' 
         CHECK (status IN ('AVAILABLE', 'ASSIGNED', 'TECHNICAL INSPECTION')),     -- ?????
-    last_itv TIMESTAMP NOT NULL,
+    last_itv DATE NOT NULL,
     next_itv DATE NOT NULL
 );
 
@@ -94,7 +94,7 @@ CREATE TABLE dL_Route_Stops (
     municipality_province VARCHAR(64),
     address VARCHAR(100),
     seq_order NUMBER CHECK (seq_order > 0),
-    stop_time TIMESTAMP,
+    stop_time DATE,
     PRIMARY KEY (route_id, municipality_name, municipality_province, address),    
     CONSTRAINT fk_stop FOREIGN KEY (municipality_name, municipality_province, address) 
         REFERENCES Stops(municipality_name, municipality_province, address) 
@@ -192,7 +192,7 @@ CREATE TABLE Editions (
     attached_materials VARCHAR(200), 
     notes VARCHAR(500), 
     national_library_id VARCHAR(20) UNIQUE,
-    URL VARCHAR(200) UNIQUE,
+    URL VARCHAR(200),
     CONSTRAINT fk_book_edition FOREIGN KEY (book_title, book_author) 
         REFERENCES Books(title, main_author)
         ON DELETE CASCADE
@@ -248,7 +248,7 @@ CREATE TABLE Comments (
     loan_date DATE,
     return DATE,
     post VARCHAR(2000),
-    post_date TIMESTAMP,
+    post_date DATE,
     likes NUMBER CHECK (likes >= 0),
     dislikes NUMBER CHECK (dislikes >= 0),
     PRIMARY KEY (loan_copy, loan_date),
